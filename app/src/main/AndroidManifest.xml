@@ -23,6 +23,8 @@
         <activity android:name=".activity.ListActivity"/>
 
         <activity android:name=".activity.DetailActivity"/>
+
+        <activity android:name=".activity.InfoActivity"/>
     </application>
 
 </manifest>

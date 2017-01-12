@@ -2,6 +2,7 @@ package com.wei.rootkit.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
 import android.widget.ListView;
 
 import com.wei.rootkit.R;
@@ -24,5 +25,9 @@ public class ListActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
     }
 
-
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
 }
