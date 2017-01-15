@@ -1,5 +1,6 @@
 package com.wei.rootkit.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,10 @@ import android.widget.TextView;
 
 import com.wei.rootkit.R;
 import com.wei.rootkit.model.Item;
+import com.wei.rootkit.service.*;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import me.drakeet.materialdialog.MaterialDialog;
 
@@ -23,6 +28,7 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
     private Button detect;
     private Item item;
     private TextView name;
+    private InfoService infoService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +55,13 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.item_detect && item != null){
+
+            String uid=item.getId();
+            setUidFile(uid);
+
+            infoService=InfoService.getInstance();
+            infoService.startDetect();
+
             mMaterialDialog = new MaterialDialog(this)
                     .setTitle("开始检测 " + item.getName())
                     .setMessage("请打开" + item.getName() + ", 执行各项需检测的操作, 操作完毕后可" +
@@ -71,4 +84,18 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
             mMaterialDialog.show();
         }
     }
+
+    /*
+    修改uid_file为选中app的uid
+     */
+    private void setUidFile(String uid){
+        try {
+            FileOutputStream outStream = this.openFileOutput("uid_file", Context.MODE_PRIVATE);
+            outStream.write(uid.getBytes());
+            outStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -13,6 +13,7 @@ public class Item implements Serializable {
     private String icon;
     private String name;
     private String size;
+    private String packageName;
 
     public Item(){}
 
@@ -51,5 +52,13 @@ public class Item implements Serializable {
 
     public void setSize(String size) {
         this.size = size;
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
     }
 }
