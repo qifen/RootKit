@@ -27,7 +27,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //拷贝asset文件
         mainService.copyFiles(this.getApplicationContext());
-
     }
 
     private void initView() {
