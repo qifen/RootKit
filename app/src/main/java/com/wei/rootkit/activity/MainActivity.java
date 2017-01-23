@@ -10,18 +10,23 @@ import android.view.View;
 import android.widget.Button;
 
 import com.wei.rootkit.R;
+import com.wei.rootkit.service.MainService;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Toolbar toolbar;
     private Button detectButton;
     private Button exitButton;
+    private MainService mainService=MainService.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
+
+        //拷贝asset文件
+        mainService.copyFiles(this.getApplicationContext());
     }
 
     private void initView() {
