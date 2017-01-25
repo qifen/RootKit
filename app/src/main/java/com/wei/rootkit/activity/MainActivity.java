@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Intent intent = new Intent(MainActivity.this, ListActivity.class);
             startActivity(intent);
         }else if (id == R.id.exit){
+            mainService.exit();
             this.finish();
         }
     }

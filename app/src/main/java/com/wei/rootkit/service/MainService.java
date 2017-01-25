@@ -98,4 +98,13 @@ public class MainService {
             e.printStackTrace();
         }
     }
+
+    public void exit(){
+        String logPath="/data/data/com.wei.rootkit/files/myLog";
+        File f=new File(logPath);
+
+        if(f.exists()){
+            f.delete();
+        }
+    }
 }

@@ -56,8 +56,8 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         if (v.getId() == R.id.item_detect && item != null){
 
-            //String uid=item.getId();
-            String uid="222";
+            String uid=item.getId();
+            //String uid="222";
             setUidFile(uid);
 
             infoService=InfoService.getInstance();
@@ -78,6 +78,7 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
                     .setNegativeButton("取消", new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            infoService.cancelDetect();
                             mMaterialDialog.dismiss();
                         }
                     });
