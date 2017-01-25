@@ -70,6 +70,7 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
                     .setPositiveButton("分析", new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            infoService.analyze();
                             Intent intent = new Intent(InfoActivity.this, DetailActivity.class);
                             startActivity(intent);
                             mMaterialDialog.dismiss();

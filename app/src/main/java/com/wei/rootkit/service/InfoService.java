@@ -64,6 +64,9 @@ public class InfoService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void analyze(){
 
     }
 
