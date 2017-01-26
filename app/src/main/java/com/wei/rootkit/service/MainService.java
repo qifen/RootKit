@@ -2,6 +2,7 @@ package com.wei.rootkit.service;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,10 +23,16 @@ public class MainService {
     }
  
     public void copyFiles(Context context){
+
+        Log.v("TAG","进入copyfiles");
+
         //判断是否为初次启动
         String uid_file_path="/data/data/com.wei.rootkit/files/uid_file";
         File f=new File(uid_file_path);
         if(!f.exists()){
+
+            Log.v("TAG","拷贝资源文件");
+
             try {
                 f.createNewFile();
             } catch (IOException e) {

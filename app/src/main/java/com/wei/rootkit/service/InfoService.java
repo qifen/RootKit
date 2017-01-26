@@ -28,7 +28,7 @@ public class InfoService {
     * */
     private void insertModule(){
 
-        Log.v("TAG","进入insertModule");
+        Log.v("TAG", "进入insertModule");
 
         Process p;
         String cmd="su -c " + "\"insmod /data/data/com.wei.rootkit/files/rootkit.ko\"";
@@ -56,7 +56,7 @@ public class InfoService {
         }
 
         Process p;
-        String cmd="su -c " + "\"rmmod rootkit.ko\"";
+        String cmd="su -c " + "\"rmmod rootkit\"";
 
         try {
             // 执行命令
@@ -68,6 +68,7 @@ public class InfoService {
 
     public void analyze(){
 
+        Log.v("TAG", "开始进行日志分析");
     }
 
 }
