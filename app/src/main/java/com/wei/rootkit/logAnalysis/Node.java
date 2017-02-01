@@ -12,10 +12,28 @@ class Node {
     private int cid;
     private String func;
     private String param;
+    private int matchid;//广播方法匹配？？
+    private int app;//？？
 
     private int parent;
     private int next;
     private int child;
+
+    public int getApp() {
+        return app;
+    }
+
+    public void setApp(int app) {
+        this.app = app;
+    }
+
+    public int getMatchid() {
+        return matchid;
+    }
+
+    public void setMatchid(int matchid) {
+        this.matchid = matchid;
+    }
 
     public String toString(){
         String s = "";
