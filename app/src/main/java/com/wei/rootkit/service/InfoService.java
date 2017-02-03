@@ -30,70 +30,26 @@ public class InfoService {
     * */
     private void insertModule(){
 
-        FileOutputStream outStream = null;
-        try {
-            outStream = new FileOutputStream("/data/data/com.wei.rootkit/files/Log");
-            String info="insertModule;";
-            outStream.write(info.getBytes());
-            outStream.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
         Log.v("TAG", "进入insertModule");
 
         Process p;
-        String cmd="su -c " + "\"insmod /data/data/com.wei.rootkit/files/rootkit.ko\"";
+        //String cmd="su -c " + "\"insmod /data/data/com.wei.rootkit/files/rootkit.ko\"";
+        String[] command={"su","-c","\"insmod /data/data/com.wei.rootkit/files/rootkit.ko\""};
 
         try {
             // 执行命令
             Log.v("TAG","执行命令");
 
-            try {
-                outStream = new FileOutputStream("/data/data/com.wei.rootkit/files/Log");
-                String info="start;";
-                outStream.write(info.getBytes());
-                outStream.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            p = Runtime.getRuntime().exec(cmd);
-            Log.v("TAG","执行命令完毕");
-
-            try {
-                outStream = new FileOutputStream("/data/data/com.wei.rootkit/files/Log");
-                String info="finish;";
-                outStream.write(info.getBytes());
-                outStream.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
+            Runtime runtime=Runtime.getRuntime();
+            p = runtime.exec(command);
+            int exitVal = p.waitFor();
+            Log.v("TAG","执行命令完毕"+exitVal);
 
         } catch (IOException e) {
-            Log.v("TAG","异常");
-
-            try {
-                outStream = new FileOutputStream("/data/data/com.wei.rootkit/files/Log");
-                String info="error;";
-                outStream.write(info.getBytes());
-                outStream.close();
-            } catch (FileNotFoundException e1) {
-                e1.printStackTrace();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-
-
+            Log.v("TAG","IO异常");
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            Log.v("TAG","Runtime异常");
             e.printStackTrace();
         }
     }
@@ -102,12 +58,6 @@ public class InfoService {
     取消检测内核模块——删除myLog，卸载内核模块rootkit.ko
      */
     public void cancelDetect(){
-        String logPath="/data/data/com.wei.rootkit/files/myLog";
-        File f=new File(logPath);
-
-        if(f.exists()){
-            f.delete();
-        }
 
         Process p;
         String cmd="su -c " + "\"rmmod rootkit\"";
@@ -118,6 +68,14 @@ public class InfoService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        String logPath="/data/data/com.wei.rootkit/files/myLog";
+        File f=new File(logPath);
+
+        if(f.exists()){
+            f.delete();
+        }
+
     }
 
     public void analyze(){
