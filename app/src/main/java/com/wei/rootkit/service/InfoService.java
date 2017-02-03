@@ -1,9 +1,11 @@
 package com.wei.rootkit.service;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -28,6 +30,19 @@ public class InfoService {
     * */
     private void insertModule(){
 
+        FileOutputStream outStream = null;
+        try {
+            outStream = new FileOutputStream("/data/data/com.wei.rootkit/files/Log");
+            String info="insertModule;";
+            outStream.write(info.getBytes());
+            outStream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
         Log.v("TAG", "进入insertModule");
 
         Process p;
@@ -36,10 +51,49 @@ public class InfoService {
         try {
             // 执行命令
             Log.v("TAG","执行命令");
+
+            try {
+                outStream = new FileOutputStream("/data/data/com.wei.rootkit/files/Log");
+                String info="start;";
+                outStream.write(info.getBytes());
+                outStream.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             p = Runtime.getRuntime().exec(cmd);
             Log.v("TAG","执行命令完毕");
+
+            try {
+                outStream = new FileOutputStream("/data/data/com.wei.rootkit/files/Log");
+                String info="finish;";
+                outStream.write(info.getBytes());
+                outStream.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
         } catch (IOException e) {
             Log.v("TAG","异常");
+
+            try {
+                outStream = new FileOutputStream("/data/data/com.wei.rootkit/files/Log");
+                String info="error;";
+                outStream.write(info.getBytes());
+                outStream.close();
+            } catch (FileNotFoundException e1) {
+                e1.printStackTrace();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+
             e.printStackTrace();
         }
     }

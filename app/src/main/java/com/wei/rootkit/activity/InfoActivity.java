@@ -57,7 +57,7 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
         if (v.getId() == R.id.item_detect && item != null){
 
             //String uid=item.getId();
-            String uid="1278";
+            String uid="1095";
             setUidFile(uid);
 
             infoService=InfoService.getInstance();
@@ -96,6 +96,7 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
             FileOutputStream outStream = this.openFileOutput("uid_file", Context.MODE_PRIVATE);
             outStream.write(uid.getBytes());
             outStream.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
