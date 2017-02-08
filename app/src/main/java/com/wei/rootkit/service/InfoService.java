@@ -36,8 +36,8 @@ public class InfoService {
 
         Log.v("TAG", "进入insertModule");
 
-
         //String[] command={"su","-c","\"insmod /data/data/com.wei.rootkit/files/rootkit.ko\""};
+        Process process = null;
 
         try {
             // 执行命令
@@ -45,7 +45,7 @@ public class InfoService {
 
             Runtime runtime=Runtime.getRuntime();
             //获得root权限
-            Process process=runtime.exec("sh");
+            process=runtime.exec("su");
             //从Process对象获得输出流
             OutputStream localOutputStream = process.getOutputStream();
             DataOutputStream localDataOutputStream = new DataOutputStream(localOutputStream);
@@ -60,18 +60,24 @@ public class InfoService {
             localDataOutputStream.writeBytes(cmd);
             localDataOutputStream.flush();
 
-            cmd="mkdir testDir\n";
+            cmd="mkdir /data/local/testDir1\n";
             localDataOutputStream.writeBytes(cmd);
             localDataOutputStream.flush();
+
+            Log.v("TAG","执行命令testDir1");
 
             cmd="insmod rootkit.ko\n";
             localDataOutputStream.writeBytes(cmd);
-            localDataOutputStream.flush();
+            //localDataOutputStream.flush();
 
+            Log.v("TAG","执行命令testDir2");
+
+            cmd="mkdir testDir2\n";
+            localDataOutputStream.writeBytes(cmd);
+            //localDataOutputStream.flush();
 
             localDataOutputStream.writeBytes("exit\n");
             localDataOutputStream.flush();
-
 
             Log.v("TAG","执行命令完毕");
             int v=process.waitFor();
@@ -93,6 +99,8 @@ public class InfoService {
         } catch (InterruptedException e) {
             Log.v("TAG","Interrupted异常");
             e.printStackTrace();
+        }finally{
+            process.destroy();
         }
     }
 
@@ -101,13 +109,30 @@ public class InfoService {
      */
     public void cancelDetect(){
 
-        Process p;
-        String cmd="su -c " + "\"rmmod rootkit\"";
+        Process process = null;
 
         try {
             // 执行命令
-            p = Runtime.getRuntime().exec(cmd);
+            Runtime runtime=Runtime.getRuntime();
+            //获得root权限
+            process=runtime.exec("su");
+            //从Process对象获得输出流
+            OutputStream localOutputStream = process.getOutputStream();
+            DataOutputStream localDataOutputStream = new DataOutputStream(localOutputStream);
+
+            String cmd="rmmod rootkit\n";
+            localDataOutputStream.writeBytes(cmd);
+
+            localDataOutputStream.writeBytes("exit\n");
+            localDataOutputStream.flush();
+
+            Log.v("TAG","执行命令完毕");
+            int v=process.waitFor();
+
+
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
