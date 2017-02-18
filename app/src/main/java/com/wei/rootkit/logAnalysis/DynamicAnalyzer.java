@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,7 +21,7 @@ import java.util.regex.Pattern;
  */
 class DynamicAnalyzer {
     private List<Node> graph;
-    private Map<Integer,Map<Integer,Node>> map;
+    private Map<Integer,Map<Integer,Node>> map;//<uid,<pid,node>> 只存储树叶，用于继续向后生长
     private List<String> config;
     private Map<String,Integer> packageListName2ID;
     private Map<Integer,String> packageListID2Name;
@@ -30,7 +29,7 @@ class DynamicAnalyzer {
      * 实现图生成算法，将原始日志信息转换成为初级行为图
      * 生成初级行为图：树形节点序列，节点内部保存节点之间的关系
      */
-    private void getPrimaryGraph(String logPath) throws FileNotFoundException {
+    private void drawPrimaryGraph(String logPath) throws FileNotFoundException {
         List<String> logList = getLog(logPath);
         graph.add(new Node());//root
         for (int logIndex = 1; logIndex < logList.size() ; logIndex++){//解析所有的日志为node list
@@ -44,13 +43,13 @@ class DynamicAnalyzer {
             if (map.containsKey(node.getUid())){//应用程序节点存在
                 Map<Integer,Node> m = map.get(node.getUid());
                 if (m.containsKey(node.getPid())){//进程节点存在
-                    if (node.getFunc().equals(cloneFunc)){//clone方法
+                    if (node.getFunc().equals(cloneFunc)){//clone方法,参数只有cid
                         int cid = Integer.parseInt(node.getParam());
                         node.setCid(cid);
                         Node parent = m.get(node.getPid());
                         node.setParent(parent.getIndex());
                         parent.setChild(parent.getChild()+1);//孩子的个数
-                        m.put(cid,node);//将clone的进程也加入到这个程序的map中
+                        m.put(cid,node);//将clone的进程也加入到这个程序(uid)的map中
                     }else {//不是clone方法
                         Node parent = m.get(node.getPid());
                         node.setParent(parent.getIndex());
@@ -73,25 +72,28 @@ class DynamicAnalyzer {
     /**
      * 实现广播生命周期匹配算法
      * 生成语义更加丰富的行为图
+     *
+     * 监控scheduleRegisteredReceiver -> finishReceiver (动态注册的广播生命周期)
+     *     scheduleReceiver -> finishReceiver (静态注册的广播生命周期)
      */
     private void matchBroadCastLifeCycle(){
         String dynamicScheduleFunc = "scheduleRegisteredReceiver";
         String staticScheduleFunc = "scheduleReceiver";
         String finishFunc = "finishReceiver";
-        Queue<Node> queue = new LinkedList<>();
+        List<Integer> queue = new LinkedList<>();//schdule方法对应节点在graph中的位置
         int isMatch = 0;
-        int cnode = 0;
-        int pnode = 0;
-        int last = 0;
+        int cnode = 0;                  //当前节点
+        int pnode = 0;                  //当前节点的父节点
+        int last = 0;                   //上一个广播周期结束节点
         for (int i = 1 ; i < graph.size() ; i ++){//遍历所有node，注意 0 是root，不是实际node
             Node node = graph.get(i);
             if (node.getFunc().equals(dynamicScheduleFunc) || node.getFunc().equals(staticScheduleFunc)) {
-                //是schedule方法,解析出与之匹配的package ID
+                //是schedule方法
                 String[] params = getParams(node.getParam());
-                if (node.getFunc().equals(dynamicScheduleFunc)){
+                if (node.getFunc().equals(dynamicScheduleFunc)){//获取pid
                     int id = Integer.parseInt(params[params.length-1]);
                     node.setMatchid(id);
-                }else {//staticScheduleFunc
+                }else {//staticScheduleFunc，获取uid
                     Integer id = packageListName2ID.get(params[params.length-1]);
                     if (id != null){//成功匹配
                         node.setMatchid(id);
@@ -100,13 +102,15 @@ class DynamicAnalyzer {
                     }
                 }
 
-                queue.add(node);
+                queue.add(i);
             }else {
                 if (node.getFunc().equals(finishFunc)){//是finish方法
-                    int scheduleIndex = 0;
                     Node scheduleNode = null;
-                    for (Node n : queue){//遍历队列中的所有schedule方法
+                    int scheduleIndex = 0;
+                    for (Integer index : queue){//遍历队列中的所有schedule方法
+                        Node n = graph.get(index);
                         scheduleNode = n;
+                        scheduleIndex = index;
                         if (n.getFunc().equals(staticScheduleFunc)){
                             if (node.getUid() == n.getMatchid()){
                                 //finish方法的uid与scheduleReceiver方法相匹配
@@ -120,23 +124,22 @@ class DynamicAnalyzer {
                                 break;
                             }
                         }
-                        scheduleIndex ++;
                     }
                     if (isMatch == 1){
                         cnode = pnode = i;
-                        last = i;
                         do {
                             cnode = pnode;
                             pnode = graph.get(pnode).getParent();
                         }while (graph.get(pnode).getPid() == graph.get(i).getPid() && graph.get(pnode).getApp() != 1 && pnode > last && pnode > scheduleIndex);
+                        //上一行：此时，pnode是在寻找schedule的开始节点，i是finish节点，last是上一个schedule的结束节点
                         //todo node.app 还没搞定
                         build(scheduleIndex,cnode,0,0,0);
                         build(scheduleIndex,i,0,0,0);
-//                        last = i;
+                        last = i;
                         queue.remove(scheduleNode);
                         isMatch = 0;
-                        break;
-//                        continue; //我觉得应该是continue
+//                        break;    //我觉得应该是continue,不可能只匹配一次啊
+                        continue;
                     }
                 }
             }
@@ -147,12 +150,13 @@ class DynamicAnalyzer {
     private String[] getParams(String params){
         String[] p = params.split(",");
         for (int i = 0 ; i < p.length ; i ++){
-            p[i].trim();
+            p[i] = p[i].trim();
         }
         return p;
     }
 
     private void build(int parent , int child , int uid , int pid , int cid){
+        //画图，注意多父节点的点
         graph.get(parent).setChild(graph.get(parent).getChild() + 1);
         graph.get(child).setParent(parent);
         if (uid != 0 && cid == 0){
@@ -215,18 +219,15 @@ class DynamicAnalyzer {
         return null;
     }
 
-//    public static void main(String[] args) {
-//        String log = "[Rootkit](954)(10074)finishReceiver(abortBroadcast = 0)";
-//        DynamicAnalyzer analyzer = new DynamicAnalyzer();
-//        Node node = analyzer.logParser(log);
-//        System.out.println(node);
-//        try {
-//            Node[] nodes = analyzer.getGraph("F:/sample.log");
-//            System.out.println(nodes);
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    public static void main(String[] args) {
+        DynamicAnalyzer analyzer = new DynamicAnalyzer();
+        try {
+            Node[] nodes = analyzer.getGraph("F:/sample.log","F:/config.ini","F:/packages.list");
+            System.out.println(nodes);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * 获取抽象行为图，以父子树表示
@@ -239,7 +240,7 @@ class DynamicAnalyzer {
     public Node[] getGraph(String logPath,String configPath,String packageListPath) throws FileNotFoundException {
         getConfig(configPath);
         getPackageList(packageListPath);
-        getPrimaryGraph(logPath);
+        drawPrimaryGraph(logPath);
         matchBroadCastLifeCycle();
         simplifyGraph();
         Node[] nodes = new Node[graph.size()];
@@ -272,7 +273,7 @@ class DynamicAnalyzer {
 
     private void getPackageList(String path){//读取packages.list，内容放进map中
         File file = new File(path);
-        String regexPattern = "(.*) ([0-9]*)";
+        String regexPattern = "([0-9A-Za-z._]*) ([0-9]*)";
         Pattern pattern = Pattern.compile(regexPattern);
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));

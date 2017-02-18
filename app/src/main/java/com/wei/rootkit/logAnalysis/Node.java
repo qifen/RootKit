@@ -117,8 +117,7 @@ class Node {
     }
 
     //    后面的暂时还不知道干嘛用的
-//    int scheduleFunc;
-//    int matchid;
+//    int scheduleFunc;标志位
 //    int finishFunc;
 //
 //    int app;
