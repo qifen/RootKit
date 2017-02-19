@@ -7,9 +7,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,14 +52,16 @@ class DynamicAnalyzer {
                     }else {//不是clone方法
                         build(m.get(node.getPid()),node,node.getUid(),node.getPid(),0);
                     }
-                }else {//某应用的第一个进程
+                }else {//某应用的第一个进程，应该不会出现这种情况
+                    System.err.println("something wrong!");
                     m.put(node.getPid(),node);
                 }
             }else {//第一个应用程序节点
                 Map<Integer,Node> m = new HashMap<>();
                 m.put(node.getPid(),node);
                 map.put(node.getUid(),m);
-                //下面这段代码是直接翻译来的，还没搞懂为什么
+                build(graph.get(0),node,node.getUid(),node.getPid(),node.getCid());
+
 //                if (node.getUid() != 1000){
 //                    String func = packageListID2Name.get(node.getUid());
 //                    if (func != null){
@@ -127,7 +131,6 @@ class DynamicAnalyzer {
                         node.setMatchid(0);
                     }
                 }
-
                 queue.add(i);
             }else {
                 if (node.getFunc().equals(finishFunc)){//是finish方法
@@ -158,7 +161,6 @@ class DynamicAnalyzer {
                             pnode = pnode.getParent();
                         }while (pnode.getPid() == node.getPid() && pnode.getApp() != 1 && pnode.getIndex() > last && pnode.getIndex() > scheduleIndex);
                         //上一行：此时，pnode是在寻找schedule的开始节点，i是finish节点，last是上一个schedule的结束节点
-                        //todo node.app 还没搞定
                         build(scheduleNode,cnode,0,0,0);
                         build(scheduleNode,node,0,0,0);
                         last = i;
@@ -186,8 +188,52 @@ class DynamicAnalyzer {
     /**
      * 使用图精简算法消除图中的冗余信息
      */
-    private void  simplifyGraph(){
+    private void  simplifyGraph(int u,Set<String> keywords,int[] inside){
+        Node node = graph.get(u);
+        int flag = 0;
+        if (node.isFinish()==false && node.getParent().isSchedule() && node.isSchedule() == false){
+            flag = 1;
+        }
+        if (node.isFinish()){
+            keywords.clear();
+        }
+        for(Edge e = node.getNext();e != null;e = e.getNext()){
+            Node child = e.getTo();
+            if (child.isFinish()){
+                continue;
+            }
+            if (flag == 1){
+                inside[0] = 1;
+                simplifyGraph(child.getIndex(),keywords,inside);
+            }else {
+                simplifyGraph(child.getIndex(),keywords,inside);
+                if (child.isFileAccess()){
+                    keywords.add("FILE_ACCESS");
+                }else if (child.isNetworkAccess()){
+                    keywords.add("NETWORK_ACCESS");
+                }else if (child.isCheckPermission()){
+                    keywords.add(child.getParam());
+                }
+                if (inside[0] == 0){
+                    String content1 = node.getIndex() + "\n" + node.getFunc() + "\n" + node.getParam();
+                    //TODO 画矩形，画边
+                    String content2 = child.getIndex() + "\n" + child.getFunc() + "\n" + child.getParam();
+                    //TODO 画矩形，画边
+                }
+            }
+        }
 
+        if (flag == 1){
+            String context = "";
+            for(String keyword : keywords){
+                context += "\n";
+                context += keyword;
+            }
+            node.setFunc(context);
+            node.setParam("");
+            keywords.clear();
+            inside[0] = 0;
+        }
     }
 
     /**
@@ -245,6 +291,7 @@ class DynamicAnalyzer {
         }
     }
 
+
     /**
      * 获取抽象行为图，以父子树表示
      * @param logPath : log文件路径
@@ -258,7 +305,7 @@ class DynamicAnalyzer {
         getPackageList(packageListPath);
         drawPrimaryGraph(logPath);
         matchBroadCastLifeCycle();
-        simplifyGraph();
+        simplifyGraph(1,new HashSet<String>(),new int[]{0});
         Node[] nodes = new Node[graph.size()];
         return graph.toArray(nodes);
     }

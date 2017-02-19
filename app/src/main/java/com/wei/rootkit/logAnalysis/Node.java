@@ -35,6 +35,66 @@ class Node {
         this.matchid = matchid;
     }
 
+    public boolean isCheckPermission(){
+        if (func != null){
+            if (func.equals("android.app.IActivityManager.checkPermission")){
+                return true;
+            }else {
+                return false;
+            }
+        }else {
+            return false;
+        }
+    }
+
+    public boolean isNetworkAccess(){
+        if (func != null){
+            if (func.equals("recvfrom")||func.equals("sendto")){
+                return true;
+            }else {
+                return false;
+            }
+        }else {
+            return false;
+        }
+    }
+
+    public boolean isFileAccess(){
+        if (func != null){
+            if (func.equals("open")||func.equals("read")||func.equals("write")||func.equals("close")){
+                return true;
+            }else {
+                return false;
+            }
+        }else {
+            return false;
+        }
+    }
+
+    public boolean isSchedule(){
+        if (func != null){
+            if (func.equals("scheduleReceiver") || func.equals("scheduleRegisteredReceiver")){
+                return true;
+            }else {
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+
+    public boolean isFinish(){
+        if (func != null){
+            if (func .equals("finishReceiver")){
+                return true;
+            }else {
+                return false;
+            }
+        }else {
+            return false;
+        }
+    }
+
     public String toString(){
         String s = "";
         s += ("pid:" + pid + "\n");
