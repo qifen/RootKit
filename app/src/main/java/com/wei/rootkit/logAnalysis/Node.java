@@ -12,11 +12,11 @@ class Node {
     private int cid;
     private String func;
     private String param;
-    private int matchid;//广播方法匹配？？
+    private int matchid;//广播方法对应的uid或pid
     private int app;//？？
 
-    private int parent;
-    private int next;
+    private Node parent;//父节点
+    private Edge next;//node发出的第一条边
     private int child;
 
     public int getApp() {
@@ -84,19 +84,19 @@ class Node {
         this.func = func;
     }
 
-    public int getParent() {
+    public Node getParent() {
         return parent;
     }
 
-    public void setParent(int parent) {
+    public void setParent(Node parent) {
         this.parent = parent;
     }
 
-    public int getNext() {
+    public Edge getNext() {
         return next;
     }
 
-    public void setNext(int next) {
+    public void setNext(Edge next) {
         this.next = next;
     }
 

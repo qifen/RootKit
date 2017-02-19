@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
  */
 class DynamicAnalyzer {
     private List<Node> graph;
+    private List<Edge> edgs;
     private Map<Integer,Map<Integer,Node>> map;//<uid,<pid,node>> 只存储树叶，用于继续向后生长
     private List<String> config;
     private Map<String,Integer> packageListName2ID;
@@ -45,18 +46,9 @@ class DynamicAnalyzer {
                 if (m.containsKey(node.getPid())){//进程节点存在
                     if (node.getFunc().equals(cloneFunc)){//clone方法,参数只有cid
                         int cid = Integer.parseInt(node.getParam());
-                        node.setCid(cid);
-                        Node parent = m.get(node.getPid());
-                        node.setParent(parent.getIndex());
-                        parent.setChild(parent.getChild()+1);//孩子的个数
-                        m.put(cid,node);//将clone的进程也加入到这个程序(uid)的map中
+                        build(m.get(node.getPid()),node,node.getUid(),node.getPid(),cid);
                     }else {//不是clone方法
-                        Node parent = m.get(node.getPid());
-                        node.setParent(parent.getIndex());
-                        m.remove(node.getPid());//将当前的树叶节点移除
-                        m.put(node.getPid(),node);
-                        //将最新的动作（当前node）做为最新的树叶节点
-                        //也就是说，后续的动作跟在当前node后面，总是保存最新的动作
+                        build(m.get(node.getPid()),node,node.getUid(),node.getPid(),0);
                     }
                 }else {//某应用的第一个进程
                     m.put(node.getPid(),node);
@@ -65,8 +57,42 @@ class DynamicAnalyzer {
                 Map<Integer,Node> m = new HashMap<>();
                 m.put(node.getPid(),node);
                 map.put(node.getUid(),m);
+                //下面这段代码是直接翻译来的，还没搞懂为什么
+//                if (node.getUid() != 1000){
+//                    String func = packageListID2Name.get(node.getUid());
+//                    if (func != null){
+//                        Node n = new Node();
+//                        n.setFunc(func);
+//                        n.setParam("");
+//                        n.setApp(1);
+//                        build(graph.get(0),n,0,0,0);
+//                    }
+//                    build(node,map.get(node.getUid()).get(node.getPid()),0,0,0);
+//                }else {
+//                    build(graph.get(0),node,0,0,0);
+//                }
             }
         }
+    }
+
+    private void build(Node parent ,Node child , int uid , int pid , int cid){
+        Edge e = new Edge();
+        e.setTo(child);
+        e.setNext(parent.getNext());
+        parent.setNext(e);
+        parent.setChild(parent.getChild()+1);
+        child.setParent(parent);
+        //将最新的动作（当前node）做为最新的树叶节点
+        //也就是说，后续的动作跟在当前node后面，总是保存最新的动作
+        if (uid != 0 && cid == 0){
+            map.get(uid).remove(pid);
+            map.get(uid).put(pid,child);
+        }
+        if (cid != 0){
+            child.setCid(cid);
+            map.get(uid).put(cid,child);
+        }
+        edgs.add(e);
     }
 
     /**
@@ -82,8 +108,8 @@ class DynamicAnalyzer {
         String finishFunc = "finishReceiver";
         List<Integer> queue = new LinkedList<>();//schdule方法对应节点在graph中的位置
         int isMatch = 0;
-        int cnode = 0;                  //当前节点
-        int pnode = 0;                  //当前节点的父节点
+        Node cnode;                  //当前节点
+        Node pnode;                  //当前节点的父节点
         int last = 0;                   //上一个广播周期结束节点
         for (int i = 1 ; i < graph.size() ; i ++){//遍历所有node，注意 0 是root，不是实际node
             Node node = graph.get(i);
@@ -126,15 +152,15 @@ class DynamicAnalyzer {
                         }
                     }
                     if (isMatch == 1){
-                        cnode = pnode = i;
+                        cnode = pnode = node;
                         do {
                             cnode = pnode;
-                            pnode = graph.get(pnode).getParent();
-                        }while (graph.get(pnode).getPid() == graph.get(i).getPid() && graph.get(pnode).getApp() != 1 && pnode > last && pnode > scheduleIndex);
+                            pnode = pnode.getParent();
+                        }while (pnode.getPid() == node.getPid() && pnode.getApp() != 1 && pnode.getIndex() > last && pnode.getIndex() > scheduleIndex);
                         //上一行：此时，pnode是在寻找schedule的开始节点，i是finish节点，last是上一个schedule的结束节点
                         //todo node.app 还没搞定
-                        build(scheduleIndex,cnode,0,0,0);
-                        build(scheduleIndex,i,0,0,0);
+                        build(scheduleNode,cnode,0,0,0);
+                        build(scheduleNode,node,0,0,0);
                         last = i;
                         queue.remove(scheduleNode);
                         isMatch = 0;
@@ -155,17 +181,7 @@ class DynamicAnalyzer {
         return p;
     }
 
-    private void build(int parent , int child , int uid , int pid , int cid){
-        //画图，注意多父节点的点
-        graph.get(parent).setChild(graph.get(parent).getChild() + 1);
-        graph.get(child).setParent(parent);
-        if (uid != 0 && cid == 0){
-            map.get(uid).put(pid,graph.get(child));
-        }
-        if (cid != 0){
-            map.get(uid).put(cid,graph.get(child));
-        }
-    }
+
 
     /**
      * 使用图精简算法消除图中的冗余信息
@@ -251,6 +267,7 @@ class DynamicAnalyzer {
     public DynamicAnalyzer(){
         map = new HashMap<>();
         graph = new ArrayList<>();
+        edgs = new ArrayList<>();
         config = new ArrayList<>();
         packageListID2Name = new HashMap<>();
         packageListName2ID = new HashMap<>();
