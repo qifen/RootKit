@@ -41,7 +41,7 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
         item = (Item) getIntent().getExtras().getSerializable("item");
 
         name = (TextView) findViewById(R.id.app_name);
-        name.setText(item.getName());
+        name.setText(item.getAppName());
         detect = (Button) findViewById(R.id.item_detect);
         detect.setOnClickListener(this);
     }
@@ -64,8 +64,8 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
             infoService.startDetect();
 
             mMaterialDialog = new MaterialDialog(this)
-                    .setTitle("开始检测 " + item.getName())
-                    .setMessage("请打开" + item.getName() + ", 执行各项需检测的操作, 操作完毕后可" +
+                    .setTitle("开始检测 " + item.getAppName())
+                    .setMessage("请打开" + item.getAppName() + ", 执行各项需检测的操作, 操作完毕后可" +
                             "点击分析按钮。如需取消检测, 点击取消按钮")
                     .setPositiveButton("分析", new View.OnClickListener() {
                         @Override

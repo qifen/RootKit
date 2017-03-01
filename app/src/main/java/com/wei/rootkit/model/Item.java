@@ -1,5 +1,7 @@
 package com.wei.rootkit.model;
 
+import android.graphics.drawable.Drawable;
+
 import java.io.Serializable;
 
 /**
@@ -9,18 +11,16 @@ import java.io.Serializable;
 public class Item implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String id;
-    private String icon;
-    private String name;
-    private String size;
-    private String packageName;
+    private String id;          //uid
+    private String appName;     //应用名
+    private String packageName; //包名
+    private Drawable icon;      //应用图标
+    private String versionName; //版本名称
+    private String versionId;   //版本号
+    private String firstInstallTime;    //第一次安装日期
+    private String lastUpdateTime;      //上一次更新日期
 
     public Item(){}
-
-    public Item(String name, String size){
-        this.name = name;
-        this.size = size;
-    }
 
     public String getId() {
         return id;
@@ -30,28 +30,12 @@ public class Item implements Serializable {
         this.id = id;
     }
 
-    public String getIcon() {
-        return icon;
+    public String getAppName() {
+        return appName;
     }
 
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getSize() {
-        return size;
-    }
-
-    public void setSize(String size) {
-        this.size = size;
+    public void setAppName(String appName) {
+        this.appName = appName;
     }
 
     public String getPackageName() {
@@ -60,5 +44,45 @@ public class Item implements Serializable {
 
     public void setPackageName(String packageName) {
         this.packageName = packageName;
+    }
+
+    public Drawable getIcon() {
+        return icon;
+    }
+
+    public void setIcon(Drawable icon) {
+        this.icon = icon;
+    }
+
+    public String getVersionName() {
+        return versionName;
+    }
+
+    public void setVersionName(String versionName) {
+        this.versionName = versionName;
+    }
+
+    public String getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(String versionId) {
+        this.versionId = versionId;
+    }
+
+    public String getFirstInstallTime() {
+        return firstInstallTime;
+    }
+
+    public void setFirstInstallTime(String firstInstallTime) {
+        this.firstInstallTime = firstInstallTime;
+    }
+
+    public String getLastUpdateTime() {
+        return lastUpdateTime;
+    }
+
+    public void setLastUpdateTime(String lastUpdateTime) {
+        this.lastUpdateTime = lastUpdateTime;
     }
 }

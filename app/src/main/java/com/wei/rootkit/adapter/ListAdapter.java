@@ -15,7 +15,6 @@ import com.wei.rootkit.R;
 import com.wei.rootkit.activity.InfoActivity;
 import com.wei.rootkit.model.Item;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,9 +25,9 @@ public class ListAdapter extends BaseAdapter {
     private Context context;
     private List<Item> list;
 
-    public ListAdapter(Context context){
+    public ListAdapter(Context context, List<Item> items){
         this.context = context;
-        initData();
+        this.list = items;
     }
 
     @Override
@@ -55,7 +54,7 @@ public class ListAdapter extends BaseAdapter {
             convertView = LayoutInflater.from(context).inflate(R.layout.list_item, null);
             itemView.icon = (ImageView) convertView.findViewById(R.id.icon);
             itemView.name = (TextView) convertView.findViewById(R.id.item_title);
-            itemView.size = (TextView) convertView.findViewById(R.id.item_subtitle);
+            itemView.version = (TextView) convertView.findViewById(R.id.item_subtitle);
             itemView.detect = (Button) convertView.findViewById(R.id.item_detect);
 
             convertView.setTag(itemView);
@@ -63,8 +62,8 @@ public class ListAdapter extends BaseAdapter {
             itemView = (ItemView) convertView.getTag();
         }
 
-        itemView.name.setText(item.getName());
-        itemView.size.setText(item.getSize());
+        itemView.name.setText(item.getAppName());
+        itemView.version.setText("版本号: " + item.getVersionId());
         itemView.detect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -85,32 +84,32 @@ public class ListAdapter extends BaseAdapter {
      * 造写假数据
      */
     private void initData(){
-        list = new ArrayList<>();
-        Item qq = new Item("QQ", "92.18MB");
-        Item weiXin = new Item("微信", "64.76MB");
-        Item qqAnquan = new Item("QQ安全中心", "2.78MB");
-        Item qqZone = new Item("QQ空间", "22.46MB");
-        Item kugou = new Item("酷狗音乐", "23.02MB");
-        Item taobao = new Item("手机淘宝", "100.08MB");
-        Item yingyongbao = new Item("应用宝", "46.17MB");
-        Item qqBrower = new Item("QQ浏览器", "56.56MB");
-        Item zhifubao = new Item("支付宝", "120.28MB");
-
-        list.add(qq);
-        list.add(weiXin);
-        list.add(qqAnquan);
-        list.add(qqZone);
-        list.add(kugou);
-        list.add(taobao);
-        list.add(yingyongbao);
-        list.add(qqBrower);
-        list.add(zhifubao);
+//        list = new ArrayList<>();
+//        Item qq = new Item("QQ", "92.18MB");
+//        Item weiXin = new Item("微信", "64.76MB");
+//        Item qqAnquan = new Item("QQ安全中心", "2.78MB");
+//        Item qqZone = new Item("QQ空间", "22.46MB");
+//        Item kugou = new Item("酷狗音乐", "23.02MB");
+//        Item taobao = new Item("手机淘宝", "100.08MB");
+//        Item yingyongbao = new Item("应用宝", "46.17MB");
+//        Item qqBrower = new Item("QQ浏览器", "56.56MB");
+//        Item zhifubao = new Item("支付宝", "120.28MB");
+//
+//        list.add(qq);
+//        list.add(weiXin);
+//        list.add(qqAnquan);
+//        list.add(qqZone);
+//        list.add(kugou);
+//        list.add(taobao);
+//        list.add(yingyongbao);
+//        list.add(qqBrower);
+//        list.add(zhifubao);
     }
 
     private class ItemView{
         ImageView icon;
         TextView name;
-        TextView size;
+        TextView version;
         Button detect;
     }
 }
