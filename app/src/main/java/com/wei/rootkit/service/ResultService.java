@@ -13,4 +13,8 @@ public class ResultService {
 
     private ResultService() {
     }
+
+    public void generateLog(String packageName){
+
+    }
 }
