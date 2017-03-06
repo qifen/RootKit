@@ -36,6 +36,14 @@ public class InfoService {
 
         Log.v("TAG", "进入insertModule");
 
+        //删除已有的myLog文件
+        String logPath="/data/data/com.wei.rootkit/files/myLog";
+        File f=new File(logPath);
+
+        if(f.exists()){
+            f.delete();
+        }
+
         //String[] command={"su","-c","\"insmod /data/data/com.wei.rootkit/files/rootkit.ko\""};
         Process process = null;
 
@@ -89,10 +97,10 @@ public class InfoService {
             */
 
         } catch (IOException e) {
-            Log.v("TAG","IO异常");
+            Log.d("TAG","IO异常");
             e.printStackTrace();
         } catch (InterruptedException e) {
-            Log.v("TAG","Interrupted异常");
+            Log.d("TAG","Interrupted异常");
             e.printStackTrace();
         }finally{
             process.destroy();

@@ -1,5 +1,6 @@
 package com.wei.rootkit.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -17,8 +18,11 @@ import com.wei.rootkit.R;
 import com.wei.rootkit.adapter.ListAdapter;
 import com.wei.rootkit.model.Icon;
 import com.wei.rootkit.model.Item;
+import com.wei.rootkit.service.InfoService;
 import com.wei.rootkit.service.MainService;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +41,7 @@ public class MainActivity extends AppCompatActivity{
     private List<Item> result;      //用于存放选中的item
     private MaterialDialog mMaterialDialog;
     private MainService mainService = MainService.getInstance();
+    private InfoService infoService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +65,21 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 if (result.size() != 0){
+
+                    //将选中app的UID添加到uid_file
+                    String inputUid="";
+                    String uid=result.get(0).getId().trim();
+                    inputUid=uid;
+                    for(int i=1;i<result.size();i++){
+                        uid=result.get(i).getId().trim();
+                        inputUid=inputUid+";"+uid;
+                    }
+                    setUidFile(inputUid);
+
+                    //加载内核模块rootkit.ko
+                    infoService=InfoService.getInstance();
+                    infoService.startDetect();
+
                     mMaterialDialog = new MaterialDialog(MainActivity.this)
                             .setTitle("开始检测选中的" + result.size() + "项应用")
                             .setMessage("请打开所选应用, 执行各项需检测的操作, 操作完毕后可" +
@@ -76,6 +96,7 @@ public class MainActivity extends AppCompatActivity{
                             .setNegativeButton("取消", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
+                                    infoService.cancelDetect();
                                     mMaterialDialog.dismiss();
                                 }
                             });
@@ -172,5 +193,19 @@ public class MainActivity extends AppCompatActivity{
             e.printStackTrace();
         }
         return uid;
+    }
+
+    /*
+    修改uid_file为选中app的uid
+     */
+    private void setUidFile(String uid){
+        try {
+            FileOutputStream outStream = this.openFileOutput("uid_file", Context.MODE_PRIVATE);
+            outStream.write(uid.getBytes());
+            outStream.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
