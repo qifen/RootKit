@@ -20,11 +20,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.ListActivity"/>
-
         <activity android:name=".activity.DetailActivity"/>
 
         <activity android:name=".activity.InfoActivity"/>
+
+        <activity android:name=".activity.ResultActivity"/>
     </application>
 
 </manifest>

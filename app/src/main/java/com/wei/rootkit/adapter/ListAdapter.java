@@ -8,13 +8,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.wei.rootkit.R;
 import com.wei.rootkit.activity.InfoActivity;
+import com.wei.rootkit.model.Icon;
 import com.wei.rootkit.model.Item;
+import com.wei.rootkit.util.RootKitUtil;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -22,12 +26,16 @@ import java.util.List;
  */
 
 public class ListAdapter extends BaseAdapter {
+    public static HashMap<Integer, Boolean> isSelected;
     private Context context;
     private List<Item> list;
+    private List<Icon> icons;
 
-    public ListAdapter(Context context, List<Item> items){
+    public ListAdapter(Context context, List<Item> items, List<Icon> icons){
         this.context = context;
         this.list = items;
+        this.icons = icons;
+        initCheck();
     }
 
     @Override
@@ -52,6 +60,7 @@ public class ListAdapter extends BaseAdapter {
         if (convertView == null){
             itemView = new ItemView();
             convertView = LayoutInflater.from(context).inflate(R.layout.list_item, null);
+            itemView.checkBox = (CheckBox) convertView.findViewById(R.id.item_check);
             itemView.icon = (ImageView) convertView.findViewById(R.id.icon);
             itemView.name = (TextView) convertView.findViewById(R.id.item_title);
             itemView.version = (TextView) convertView.findViewById(R.id.item_subtitle);
@@ -62,6 +71,7 @@ public class ListAdapter extends BaseAdapter {
             itemView = (ItemView) convertView.getTag();
         }
 
+        itemView.icon.setImageBitmap(RootKitUtil.drawableToBitmap(icons.get(position).getIcon()));
         itemView.name.setText(item.getAppName());
         itemView.version.setText("版本号: " + item.getVersionId());
         itemView.detect.setOnClickListener(new View.OnClickListener() {
@@ -76,40 +86,29 @@ public class ListAdapter extends BaseAdapter {
                 }
             }
         });
+        itemView.checkBox.setChecked(isSelected.get(position));
 
         return convertView;
     }
 
+
     /**
-     * 造写假数据
+     * 初始化,设置所有checkbox未选择
      */
-    private void initData(){
-//        list = new ArrayList<>();
-//        Item qq = new Item("QQ", "92.18MB");
-//        Item weiXin = new Item("微信", "64.76MB");
-//        Item qqAnquan = new Item("QQ安全中心", "2.78MB");
-//        Item qqZone = new Item("QQ空间", "22.46MB");
-//        Item kugou = new Item("酷狗音乐", "23.02MB");
-//        Item taobao = new Item("手机淘宝", "100.08MB");
-//        Item yingyongbao = new Item("应用宝", "46.17MB");
-//        Item qqBrower = new Item("QQ浏览器", "56.56MB");
-//        Item zhifubao = new Item("支付宝", "120.28MB");
-//
-//        list.add(qq);
-//        list.add(weiXin);
-//        list.add(qqAnquan);
-//        list.add(qqZone);
-//        list.add(kugou);
-//        list.add(taobao);
-//        list.add(yingyongbao);
-//        list.add(qqBrower);
-//        list.add(zhifubao);
+    private void initCheck(){
+        isSelected = new HashMap<>();
+        for (int i = 0; i < list.size(); i++){
+            isSelected.put(i, false);
+        }
     }
 
-    private class ItemView{
-        ImageView icon;
-        TextView name;
-        TextView version;
-        Button detect;
+    public class ItemView{
+        public CheckBox checkBox;
+        public ImageView icon;
+        public TextView name;
+        public TextView version;
+        public Button detect;
     }
+
+
 }

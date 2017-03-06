@@ -6,12 +6,14 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.wei.rootkit.R;
+import com.wei.rootkit.model.Icon;
 import com.wei.rootkit.model.Item;
-import com.wei.rootkit.service.*;
+import com.wei.rootkit.service.InfoService;
+import com.wei.rootkit.util.RootKitUtil;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -25,9 +27,18 @@ import me.drakeet.materialdialog.MaterialDialog;
 public class InfoActivity extends AppCompatActivity implements View.OnClickListener{
 
     private MaterialDialog mMaterialDialog;
-    private Button detect;
     private Item item;
-    private TextView name;
+
+    private TextView appName;
+    private TextView packageName;
+    private TextView uid;
+    private TextView versionName;
+    private TextView versionId;
+    private TextView installTime;
+    private TextView updateTime;
+    private TextView itemName;
+    private ImageView itemIcon;
+
     private InfoService infoService;
 
     @Override
@@ -40,10 +51,32 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
     private void initView() {
         item = (Item) getIntent().getExtras().getSerializable("item");
 
-        name = (TextView) findViewById(R.id.app_name);
-        name.setText(item.getAppName());
-        detect = (Button) findViewById(R.id.item_detect);
-        detect.setOnClickListener(this);
+        appName = (TextView) findViewById(R.id.app_name);
+        packageName = (TextView) findViewById(R.id.package_name);
+        uid = (TextView) findViewById(R.id.uid);
+        versionName = (TextView) findViewById(R.id.version_name);
+        versionId = (TextView) findViewById(R.id.version_id);
+        installTime = (TextView) findViewById(R.id.install_time);
+        updateTime = (TextView) findViewById(R.id.update_time);
+        itemIcon = (ImageView) findViewById(R.id.item_icon);
+        itemName = (TextView) findViewById(R.id.item_name);
+
+        appName.setText(item.getAppName());
+        packageName.setText(item.getPackageName());
+        uid.setText(item.getId());
+        versionName.setText(item.getVersionName());
+        versionId.setText(item.getId());
+        installTime.setText(RootKitUtil.stampToDate(item.getFirstInstallTime()));
+        updateTime.setText(RootKitUtil.stampToDate(item.getLastUpdateTime()));
+        itemName.setText(item.getAppName());
+
+        for (int i = 0; i < MainActivity.icons.size(); i ++){
+            Icon icon = MainActivity.icons.get(i);
+            if (item.getAppName().equals(icon.getAppName()) && item.getId().equals(icon.getId())){
+                itemIcon.setImageBitmap(RootKitUtil.drawableToBitmap(icon.getIcon()));
+                break;
+            }
+        }
     }
 
     @Override
@@ -56,12 +89,12 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         if (v.getId() == R.id.item_detect && item != null){
 
-            //String uid=item.getId();
-            String uid="1095";
-            setUidFile(uid);
-
-            infoService=InfoService.getInstance();
-            infoService.startDetect();
+//            //String uid=item.getId();
+//            String uid="1095";
+//            setUidFile(uid);
+//
+//            infoService=InfoService.getInstance();
+//            infoService.startDetect();
 
             mMaterialDialog = new MaterialDialog(this)
                     .setTitle("开始检测 " + item.getAppName())
@@ -70,7 +103,7 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
                     .setPositiveButton("分析", new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            infoService.analyze();
+//                            infoService.analyze();
                             Intent intent = new Intent(InfoActivity.this, DetailActivity.class);
                             startActivity(intent);
                             mMaterialDialog.dismiss();
@@ -79,7 +112,7 @@ public class InfoActivity extends AppCompatActivity implements View.OnClickListe
                     .setNegativeButton("取消", new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            infoService.cancelDetect();
+//                            infoService.cancelDetect();
                             mMaterialDialog.dismiss();
                         }
                     });

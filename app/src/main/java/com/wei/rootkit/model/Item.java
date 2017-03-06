@@ -1,7 +1,5 @@
 package com.wei.rootkit.model;
 
-import android.graphics.drawable.Drawable;
-
 import java.io.Serializable;
 
 /**
@@ -14,7 +12,6 @@ public class Item implements Serializable {
     private String id;          //uid
     private String appName;     //应用名
     private String packageName; //包名
-    private Drawable icon;      //应用图标
     private String versionName; //版本名称
     private String versionId;   //版本号
     private String firstInstallTime;    //第一次安装日期
@@ -44,14 +41,6 @@ public class Item implements Serializable {
 
     public void setPackageName(String packageName) {
         this.packageName = packageName;
-    }
-
-    public Drawable getIcon() {
-        return icon;
-    }
-
-    public void setIcon(Drawable icon) {
-        this.icon = icon;
     }
 
     public String getVersionName() {

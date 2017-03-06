@@ -1,23 +1,42 @@
 package com.wei.rootkit.activity;
 
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 import com.wei.rootkit.R;
+import com.wei.rootkit.adapter.ListAdapter;
+import com.wei.rootkit.model.Icon;
+import com.wei.rootkit.model.Item;
 import com.wei.rootkit.service.MainService;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+import me.drakeet.materialdialog.MaterialDialog;
+
+public class MainActivity extends AppCompatActivity{
 
     private Toolbar toolbar;
-    private Button detectButton;
-    private Button exitButton;
-    private MainService mainService=MainService.getInstance();
+    private ListView listView;
+    private ListAdapter adapter;
+
+    private List<Item> items;
+    public static List<Icon> icons;
+
+    private List<Item> result;      //用于存放选中的item
+    private MaterialDialog mMaterialDialog;
+    private MainService mainService = MainService.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,13 +49,63 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initView() {
+        result = new ArrayList<>();
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        detectButton = (Button) findViewById(R.id.detect);
-        exitButton = (Button) findViewById(R.id.exit);
 
-        detectButton.setOnClickListener(this);
-        exitButton.setOnClickListener(this);
+        listView = (ListView) findViewById(R.id.list_view);
+        //添加检测按钮
+        View footView = getLayoutInflater().inflate(R.layout.list_detect, null);
+        footView.findViewById(R.id.item_detect).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (result.size() != 0){
+                    mMaterialDialog = new MaterialDialog(MainActivity.this)
+                            .setTitle("开始检测选中的" + result.size() + "项应用")
+                            .setMessage("请打开所选应用, 执行各项需检测的操作, 操作完毕后可" +
+                                    "点击分析按钮。如需取消检测, 点击取消按钮")
+                            .setPositiveButton("分析", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent intent = new Intent(MainActivity.this, ResultActivity.class);
+                                    intent.putExtra("result", (Serializable) result);
+                                    startActivity(intent);
+                                    mMaterialDialog.dismiss();
+                                }
+                            })
+                            .setNegativeButton("取消", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    mMaterialDialog.dismiss();
+                                }
+                            });
+
+                    mMaterialDialog.show();
+                }
+            }
+        });
+        listView.addFooterView(footView);
+
+        getAppInfo();
+        adapter = new ListAdapter(this, items, icons);
+        listView.setAdapter(adapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ListAdapter.ItemView itemView = (ListAdapter.ItemView) view.getTag();
+                if (null != itemView){
+                    itemView.checkBox.toggle();     //改变checkbox状态
+                    ListAdapter.isSelected.put(position, itemView.checkBox.isChecked());    //修改map的值保存状态
+
+                    if (itemView.checkBox.isChecked()){
+                        result.add(items.get(position));
+                    }else {
+                        result.remove(items.get(position));
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -56,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }else if (id == R.id.action_about) {
             return true;
         }else if (id == R.id.action_exit){
+            mainService.exit();
             this.finish();
             return true;
         }
@@ -63,15 +133,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onClick(View v) {
-        int id = v.getId();
-        if (id == R.id.detect){
-            Intent intent = new Intent(MainActivity.this, ListActivity.class);
-            startActivity(intent);
-        }else if (id == R.id.exit){
-            mainService.exit();
-            this.finish();
+
+    private void getAppInfo() {
+        items = new ArrayList<>();
+        icons = new ArrayList<>();
+        //获取所有应用信息
+        List<PackageInfo> packages = getPackageManager().getInstalledPackages(0);
+        for (int i = 0; i < packages.size(); i++){
+            PackageInfo packageInfo = packages.get(i);
+            //过滤系统应用
+            if ((packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0){
+                Item item = new Item();
+                Icon icon = new Icon();
+                item.setId(getUidByPackageName(packageInfo.packageName));
+                item.setAppName(packageInfo.applicationInfo.loadLabel(getPackageManager()).toString());
+                item.setPackageName(packageInfo.packageName);
+                item.setVersionName(packageInfo.versionName);
+                item.setVersionId(packageInfo.versionCode + "");
+                item.setFirstInstallTime(packageInfo.firstInstallTime + "");
+                item.setLastUpdateTime(packageInfo.lastUpdateTime + "");
+
+                icon.setId(item.getId());
+                icon.setAppName(item.getAppName());
+                icon.setIcon(packageInfo.applicationInfo.loadIcon(getPackageManager()));
+                items.add(item);
+                icons.add(icon);
+            }
         }
+    }
+
+    private String getUidByPackageName(String name) {
+        String uid = null;
+        try {
+            PackageManager pm = getPackageManager();
+            ApplicationInfo ai = pm.getApplicationInfo(name, PackageManager.GET_ACTIVITIES);
+            uid = ai.uid + "";
+        } catch (PackageManager.NameNotFoundException e){
+            e.printStackTrace();
+        }
+        return uid;
     }
 }
