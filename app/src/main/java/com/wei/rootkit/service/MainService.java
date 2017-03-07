@@ -71,6 +71,10 @@ public class MainService {
             }
             */
 
+            //创建log目录，存放单个app的日志
+            File logDir= new File(context.getFilesDir() + "/log");
+            logDir.mkdir();
+
             //拷贝aidl文件
             File dir = new File(context.getFilesDir() + "/aidl");
             dir.mkdir();
