@@ -15,6 +15,7 @@ import com.wei.rootkit.activity.DetailActivity;
 import com.wei.rootkit.activity.MainActivity;
 import com.wei.rootkit.model.Icon;
 import com.wei.rootkit.model.Item;
+import com.wei.rootkit.service.ResultService;
 import com.wei.rootkit.util.RootKitUtil;
 
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.List;
 public class ResultAdapter extends BaseAdapter {
     private Context context;
     private List<Item> list;
+    private ResultService resultService=ResultService.getInstance();
 
     public ResultAdapter(Context context, List<Item> list){
         this.context = context;
@@ -66,10 +68,14 @@ public class ResultAdapter extends BaseAdapter {
 
         viewHolder.name.setText(item.getAppName());
         viewHolder.version.setText("版本号: " + item.getVersionId());
+        final String packageName=item.getPackageName().trim();
+        final String uid=item.getId().trim();
         viewHolder.detail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (v.getId() == R.id.item_detail){
+                    resultService.generateLog(packageName,uid);
+
                     Intent intent = new Intent(context, DetailActivity.class);
                     context.startActivity(intent);
                 }
