@@ -39,6 +39,14 @@ public class MainService {
                 e.printStackTrace();
             }
 
+            //创建log目录，存放单个app的日志
+            File logDir= new File(context.getFilesDir() + "/log");
+            logDir.mkdir();
+
+            //创建pic目录，存放单个app的生成图
+            File picDir= new File(context.getFilesDir() + "/pic");
+            picDir.mkdir();
+
             //拷贝assets中的文件
             copyAssetFileToFiles(context,"rootkit.ko");
             /*
@@ -70,10 +78,6 @@ public class MainService {
                 }
             }
             */
-
-            //创建log目录，存放单个app的日志
-            File logDir= new File(context.getFilesDir() + "/log");
-            logDir.mkdir();
 
             //拷贝aidl文件
             File dir = new File(context.getFilesDir() + "/aidl");
