@@ -26,53 +26,53 @@ public class ResultService {
 
     public void generateLog(String packageName,String uid){
 
-        //从myLog读取相应日志
-        String inputPath = "/data/data/com.wei.rootkit/files/myLog";
-        String content = ""; //文件内容字符串
+        String logPath="/data/data/com.wei.rootkit/files/log/"+packageName;
+        //判断在此次检测中是否生成过app日志文件
+        File f=new File(logPath);
+        if(!f.exists()){
+            //从myLog读取相应日志
+            String inputPath = "/data/data/com.wei.rootkit/files/myLog";
+            String content = ""; //文件内容字符串
 
-        File inputFile = new File(inputPath);
-        if(inputFile.exists()){
-            try {
-                InputStream instream = new FileInputStream(inputFile);
-                if (instream != null){
-                    InputStreamReader inputreader = new InputStreamReader(instream);
-                    BufferedReader buffreader = new BufferedReader(inputreader);
-                    String line;
-                    //分行读取
-                    while (( line = buffreader.readLine()) != null) {
-                        //判断是否为此应用的日志
-                        if(line.contains("sys_call_table") || line.contains(uid.trim())){
-                            content += line + "\n";
+            File inputFile = new File(inputPath);
+            if(inputFile.exists()){
+                try {
+                    InputStream instream = new FileInputStream(inputFile);
+                    if (instream != null){
+                        InputStreamReader inputreader = new InputStreamReader(instream);
+                        BufferedReader buffreader = new BufferedReader(inputreader);
+                        String line;
+                        //分行读取
+                        while (( line = buffreader.readLine()) != null) {
+                            //判断是否为此应用的日志
+                            if(line.contains("sys_call_table") || line.contains(uid.trim())){
+                                content += line + "\n";
+                            }
                         }
+                        instream.close();
                     }
-                    instream.close();
+                }catch (java.io.FileNotFoundException e){
+                    Log.d("ReadLogFile", "The File doesn't not exist.");
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    Log.d("ReadLogFile", "Input error!");
+                    e.printStackTrace();
                 }
-            }catch (java.io.FileNotFoundException e){
-                Log.d("ReadLogFile", "The File doesn't not exist.");
-                e.printStackTrace();
+            }
+
+            //将读取内容写入app日志文件
+            File logFile=new File(logPath);
+
+            FileWriter writer;
+            try {
+                logFile.createNewFile();
+                writer = new FileWriter(logFile, true);
+                writer.write(content);
+                writer.close();
             } catch (IOException e) {
-                Log.d("ReadLogFile", "Input error!");
                 e.printStackTrace();
             }
         }
 
-        //将读取内容写入app日志文件
-        //删除已有的app的log文件
-        String logPath="/data/data/com.wei.rootkit/files/log/"+packageName;
-        File logFile=new File(logPath);
-
-        if(logFile.exists()){
-            logFile.delete();
-        }
-
-        FileWriter writer;
-        try {
-            logFile.createNewFile();
-            writer = new FileWriter(logFile, true);
-            writer.write(content);
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

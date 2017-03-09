@@ -21,15 +21,15 @@ public class InfoService {
     }
 
     public void startDetect(){
+        deleteOldFiles();
         insertModule();
     }
 
-    /*加载内核模块
-    * */
-    private void insertModule(){
+    /*
+    删除已存在的日志以及图片文件
+     */
 
-        Log.v("TAG", "进入insertModule");
-
+    private void deleteOldFiles(){
         //删除已有的myLog文件
         String logPath="/data/data/com.wei.rootkit/files/myLog";
         File f=new File(logPath);
@@ -37,6 +37,33 @@ public class InfoService {
         if(f.exists()){
             f.delete();
         }
+
+        //删除log目录下所有文件
+        String logDir="/data/data/com.wei.rootkit/files/log";
+        File logFile=new File(logDir);
+        File files[] = logFile.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                file.delete();
+            }
+        }
+
+        //删除pic目录下所有文件
+        String picDir="/data/data/com.wei.rootkit/files/pic";
+        File picFile=new File(picDir);
+        files= picFile.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                file.delete();
+            }
+        }
+    }
+
+    /*加载内核模块
+    * */
+    private void insertModule(){
+
+        Log.v("TAG", "进入insertModule");
 
         //String[] command={"su","-c","\"insmod /data/data/com.wei.rootkit/files/rootkit.ko\""};
         Process process = null;

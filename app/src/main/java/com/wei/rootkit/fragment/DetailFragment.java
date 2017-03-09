@@ -43,8 +43,13 @@ public class DetailFragment extends Fragment {
             textView.setText(content);
 
         }else{//显示图
-            detailService.generatePicture(packageName.trim());
             String imagePath="/data/data/com.wei.rootkit/files/pic/"+packageName;
+            File f=new File(imagePath);
+
+            if(!f.exists()){
+                detailService.generatePicture(packageName.trim(),this.getContext());
+            }
+
             imageView = (ImageView) rootView.findViewById(R.id.imageView);
             Bitmap bm = BitmapFactory.decodeFile(imagePath);
             imageView.setImageBitmap(bm);
