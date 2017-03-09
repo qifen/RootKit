@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -13,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.wei.rootkit.R;
 import com.wei.rootkit.adapter.ListAdapter;
@@ -43,6 +45,8 @@ public class MainActivity extends AppCompatActivity{
     private MainService mainService = MainService.getInstance();
     private InfoService infoService;
 
+    private long mPressedTime = 0;     //用于记录按下返回键的时间
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +55,18 @@ public class MainActivity extends AppCompatActivity{
 
         //拷贝asset文件
         mainService.copyFiles(this.getApplicationContext());
+    }
+
+    @Override
+    public void onBackPressed() {
+        long mNowTime = System.currentTimeMillis(); //获取第一次按键时间
+        if ((mNowTime - mPressedTime) > 2000) { //比较两次按键的时间差
+            Toast.makeText(this, "再按一次退出RootKit", Toast.LENGTH_SHORT).show();
+            mPressedTime = mNowTime;
+        }else { //退出程序
+            mainService.exit();
+            this.finish();
+        }
     }
 
     private void initView() {
