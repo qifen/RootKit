@@ -1,5 +1,6 @@
 package com.wei.rootkit.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -28,10 +29,15 @@ public class DetailActivity extends AppCompatActivity {
 
     private List<String> titleList;
 
+    private String packageName="";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.detail_activity);
+        Intent reciIntent = getIntent();   //接收上一级activity传过来的参数
+        packageName = reciIntent.getStringExtra("packageName");
+
         initView();
     }
 
@@ -85,6 +91,7 @@ public class DetailActivity extends AppCompatActivity {
                 mFragments.put(position, fragment);
                 Bundle bundle = new Bundle();
                 bundle.putInt("index", position);
+                bundle.putString("packageName", packageName.trim());
                 fragment.setArguments(bundle);
             }
             return fragment;

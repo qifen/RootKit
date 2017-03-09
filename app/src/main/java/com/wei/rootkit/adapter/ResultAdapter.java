@@ -77,6 +77,7 @@ public class ResultAdapter extends BaseAdapter {
                     resultService.generateLog(packageName,uid);
 
                     Intent intent = new Intent(context, DetailActivity.class);
+                    intent.putExtra("packageName",packageName);
                     context.startActivity(intent);
                 }
             }

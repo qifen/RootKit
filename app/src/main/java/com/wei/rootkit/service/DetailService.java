@@ -57,7 +57,7 @@ public class DetailService {
         return content;
     }
 
-    public void uploadFile(String packageName){
+    public void generatePicture(String packageName){
         String end = "\r\n";
         String twoHyphens = "--";
         String boundary = "******";
@@ -124,7 +124,4 @@ public class DetailService {
         }
     }
 
-    public void downloadPicture(String packageName){
-
-    }
 }
