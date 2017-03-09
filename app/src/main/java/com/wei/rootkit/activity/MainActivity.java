@@ -177,8 +177,11 @@ public class MainActivity extends AppCompatActivity{
                 icon.setId(item.getId());
                 icon.setAppName(item.getAppName());
                 icon.setIcon(packageInfo.applicationInfo.loadIcon(getPackageManager()));
-                items.add(item);
-                icons.add(icon);
+
+                if (!getPackageName().equals(item.getPackageName())){
+                    items.add(item);
+                    icons.add(icon);
+                }
             }
         }
     }
