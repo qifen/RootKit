@@ -79,20 +79,25 @@ public class DetailActivity extends AppCompatActivity {
             Fragment fragment = mFragments.get(position);
 
             if (fragment == null) {
+                Bundle bundle = new Bundle();
                 switch (position) {
                     case 0:
+                        bundle.putInt("index", position);
+                        bundle.putString("packageName", packageName.trim());
+
                         fragment = new DetailFragment();
+                        fragment.setArguments(bundle);
                         break;
                     default:
+                        bundle.putInt("index", position);
+                        bundle.putString("packageName", packageName.trim());
+
                         fragment = new DetailFragment();
+                        fragment.setArguments(bundle);
                         break;
 
                 }
                 mFragments.put(position, fragment);
-                Bundle bundle = new Bundle();
-                bundle.putInt("index", position);
-                bundle.putString("packageName", packageName.trim());
-                fragment.setArguments(bundle);
             }
             return fragment;
         }

@@ -38,6 +38,7 @@ public class DetailService {
     }
 
     public String getLogContent(String packageName){
+
         String content="";
         String inputPath = "/data/data/com.wei.rootkit/files/log/"+packageName;
 
@@ -51,7 +52,7 @@ public class DetailService {
                     String line;
                     //分行读取
                     while (( line = buffreader.readLine()) != null) {
-                        content += line + "\n";
+                        content=content+line + "\n";
                     }
                     instream.close();
                 }

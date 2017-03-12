@@ -39,6 +39,7 @@ public class InfoService {
         }
 
         //删除log目录下所有文件
+        /*
         String logDir="/data/data/com.wei.rootkit/files/log";
         File logFile=new File(logDir);
         File files[] = logFile.listFiles();
@@ -47,8 +48,10 @@ public class InfoService {
                 file.delete();
             }
         }
+        */
 
         //删除pic目录下所有文件
+        /*
         String picDir="/data/data/com.wei.rootkit/files/pic";
         File picFile=new File(picDir);
         files= picFile.listFiles();
@@ -57,6 +60,7 @@ public class InfoService {
                 file.delete();
             }
         }
+        */
     }
 
     /*加载内核模块

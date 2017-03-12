@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,14 +42,16 @@ public class DetailFragment extends Fragment {
         if(index==0){//显示日志
             String content=detailService.getLogContent(packageName.trim());
             textView=(TextView) rootView.findViewById(R.id.textView);
+            textView.setMovementMethod(ScrollingMovementMethod.getInstance());
             textView.setText(content);
 
         }else{//显示图
-            String imagePath="/data/data/com.wei.rootkit/files/pic/"+packageName;
+            //String imagePath="/data/data/com.wei.rootkit/files/pic/"+packageName;
+            String imagePath="/sdcard/a.png";
             File f=new File(imagePath);
 
             if(!f.exists()){
-                detailService.generatePicture(packageName.trim(),this.getContext());
+                //detailService.generatePicture(packageName.trim(),this.getContext());
             }
 
             imageView = (ImageView) rootView.findViewById(R.id.imageView);

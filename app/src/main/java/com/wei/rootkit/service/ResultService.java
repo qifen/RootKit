@@ -59,14 +59,12 @@ public class ResultService {
                     e.printStackTrace();
                 }
             }
-
             //将读取内容写入app日志文件
-            File logFile=new File(logPath);
 
             FileWriter writer;
             try {
-                logFile.createNewFile();
-                writer = new FileWriter(logFile, true);
+                f.createNewFile();
+                writer = new FileWriter(f, true);
                 writer.write(content);
                 writer.close();
             } catch (IOException e) {
