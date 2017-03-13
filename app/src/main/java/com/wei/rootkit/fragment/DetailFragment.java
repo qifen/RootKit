@@ -54,7 +54,7 @@ public class DetailFragment extends Fragment {
                 //detailService.generatePicture(packageName.trim(),this.getContext());
             }
 
-            imageView = (ImageView) rootView.findViewById(R.id.imageView);
+            imageView = (ImageView) rootView.findViewById(R.id.pinchImageView);
             Bitmap bm = BitmapFactory.decodeFile(imagePath);
             imageView.setImageBitmap(bm);
 

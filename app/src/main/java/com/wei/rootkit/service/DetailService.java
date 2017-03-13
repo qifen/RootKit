@@ -40,7 +40,8 @@ public class DetailService {
     public String getLogContent(String packageName){
 
         String content="";
-        String inputPath = "/data/data/com.wei.rootkit/files/log/"+packageName;
+        //String inputPath = "/data/data/com.wei.rootkit/files/log/"+packageName;
+        String inputPath="/sdcard/"+packageName+".log";
 
         File inputFile = new File(inputPath);
         if(inputFile.exists()){

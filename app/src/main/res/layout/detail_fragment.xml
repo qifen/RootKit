@@ -9,15 +9,14 @@
         android:id="@+id/textView"
         android:maxLines = "500"
         android:scrollbars = "vertical"
-        android:text="分析结果"
+        android:text=""
         />
 
-    <ImageView
+    <com.wei.rootkit.service.PinchImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/imageView"
-        android:scaleType="center"
-        android:text="分析结果"
+        android:id="@+id/pinchImageView"
+        android:text=""
         />
 
 </RelativeLayout>
