@@ -51,7 +51,7 @@ public class DetailFragment extends Fragment {
             File f=new File(imagePath);
 
             if(!f.exists()){
-                //detailService.generatePicture(packageName.trim(),this.getContext());
+                detailService.generatePicture(packageName.trim(),this.getContext());
             }
 
             imageView = (ImageView) rootView.findViewById(R.id.pinchImageView);

@@ -6,6 +6,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Looper;
 import android.util.Log;
 
@@ -33,6 +35,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.internal.framed.FrameReader;
 
+import static android.content.Context.WIFI_SERVICE;
+
 /**
  * Created by sharon on 2017/3/7.
  */
@@ -43,6 +47,8 @@ public class DetailService {
     private PackageManager packageManager = null;
 
     private OkHttpClient okHttpClient = new OkHttpClient();
+
+    private String ip="";
 
     public static DetailService getInstance() {
 
@@ -84,6 +90,7 @@ public class DetailService {
     }
 
     public void generatePicture(String packageName,Context context){
+        ip=getIP(context);
         uploadAPK(packageName,context);
         uploadFile(packageName);
     }
@@ -171,7 +178,7 @@ public class DetailService {
     private void uploadAPK(String packageName,Context context){
         //补全请求地址
         //String requestUrl = String.format("%s/%s", upload_head, actionUrl);
-        String requestUrl="";
+        String requestUrl=ip;
         MultipartBody.Builder builder = new MultipartBody.Builder();
         //设置类型
         builder.setType(MultipartBody.FORM);
@@ -224,7 +231,7 @@ public class DetailService {
         final String pn=packageName.trim();
         //补全请求地址
         //String requestUrl = String.format("%s/%s", upload_head, actionUrl);
-        String requestUrl="";
+        String requestUrl=ip;
         MultipartBody.Builder builder = new MultipartBody.Builder();
         //设置类型
         builder.setType(MultipartBody.FORM);
@@ -352,5 +359,17 @@ public class DetailService {
         }
     }
     */
+
+    private String getIP(Context context){
+        WifiManager wifiService = (WifiManager) context.getSystemService(WIFI_SERVICE);
+        WifiInfo wifiinfo = wifiService.getConnectionInfo();
+
+        int tmp=wifiinfo.getIpAddress();
+        String ip=(tmp & 0xFF) + "." + ((tmp >> 8) & 0xFF) + "." + ((tmp >> 16) & 0xFF)
+                + "." + (tmp >> 24 & 0xFF);
+
+        return ip;
+
+    }
 
 }
