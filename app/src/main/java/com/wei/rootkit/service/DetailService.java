@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Looper;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -20,6 +21,17 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.internal.framed.FrameReader;
 
 /**
  * Created by sharon on 2017/3/7.
@@ -30,7 +42,10 @@ public class DetailService {
 
     private PackageManager packageManager = null;
 
+    private OkHttpClient okHttpClient = new OkHttpClient();
+
     public static DetailService getInstance() {
+
         return detailService;
     }
 
@@ -73,6 +88,7 @@ public class DetailService {
         uploadFile(packageName);
     }
 
+    /*
     private void uploadAPK(String packageName,Context context){
         String end = "\r\n";
         String twoHyphens = "--";
@@ -150,7 +166,116 @@ public class DetailService {
             e.printStackTrace();
         }
     }
+    */
 
+    private void uploadAPK(String packageName,Context context){
+        //补全请求地址
+        //String requestUrl = String.format("%s/%s", upload_head, actionUrl);
+        String requestUrl="";
+        MultipartBody.Builder builder = new MultipartBody.Builder();
+        //设置类型
+        builder.setType(MultipartBody.FORM);
+        //追加参数
+        builder.addFormDataPart("PackageName",packageName);
+        packageManager = context.getPackageManager();
+        PackageInfo packInfo = null;
+        try {
+            packInfo = packageManager.getPackageInfo(packageName.trim(),0);
+            ApplicationInfo appInfo=packInfo.applicationInfo;
+            String apkPath=appInfo.sourceDir;
+            File apkFile=new File(apkPath);
+
+            if(apkFile.exists()){
+                RequestBody requestBody=RequestBody.create(MediaType.parse("apk"),apkFile);
+                builder.addFormDataPart("APK",packageName,requestBody);
+
+                //创建RequestBody
+                RequestBody body = builder.build();
+                //创建Request
+                final Request request = new Request.Builder().url(requestUrl).post(body).build();
+                final Call call = okHttpClient.newBuilder().writeTimeout(50, TimeUnit.SECONDS).build().newCall(request);
+
+                call.enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Log.e("uploadAPK", "Callback--"+e.toString());
+                    }
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (response.isSuccessful()) {
+                            String string = response.body().string();
+                            Log.e("uploadAPK", "response ----->" + string);
+                        } else {
+                            Log.e("uploadAPK", "Callback--upload failed!");
+                        }
+                    }
+
+                });
+            }
+
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e("uploadAPK","  getPackageInfo");
+            e.printStackTrace();
+        }
+
+    }
+
+    private void uploadFile(String packageName){
+        final String pn=packageName.trim();
+        //补全请求地址
+        //String requestUrl = String.format("%s/%s", upload_head, actionUrl);
+        String requestUrl="";
+        MultipartBody.Builder builder = new MultipartBody.Builder();
+        //设置类型
+        builder.setType(MultipartBody.FORM);
+        //追加参数
+        builder.addFormDataPart("PackageName",packageName);
+        String logPath="/data/data/com.wei.rootkit/files/log/"+packageName.trim();
+        File logFile=new File(logPath);
+
+        if(logFile.exists()){
+            RequestBody requestBody=RequestBody.create(MediaType.parse("text/*"),logFile);
+            builder.addFormDataPart("LogFile",packageName,requestBody);
+
+            //创建RequestBody
+            RequestBody body = builder.build();
+            //创建Request
+            final Request request = new Request.Builder().url(requestUrl).post(body).build();
+            final Call call = okHttpClient.newBuilder().writeTimeout(50, TimeUnit.SECONDS).build().newCall(request);
+
+            call.enqueue(new Callback() {
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.e("uploadFile", "Callback--"+e.toString());
+                }
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        Log.e("uploadFile", "response ----->");
+                        //设定每次写入1024bytes
+                        int bufferSize = 1024;
+                        byte[] buffer = new byte[bufferSize];
+                        int count = 0;
+                        InputStream is=response.body().byteStream();
+                        String picPath="/data/data/com.wei.rootkit/files/pic/"+pn;
+                        FileOutputStream outputStream = new FileOutputStream(picPath);
+
+                        while((count=is.read(buffer))!=-1){
+                            outputStream.write(buffer, 0, count);
+                        }
+                        is.close();
+                        outputStream.close();
+                    } else {
+                        Log.e("uploadFile", "Callback--upload failed!");
+                    }
+                }
+
+            });
+        }
+    }
+
+    /*
     private void uploadFile(String packageName){
         String end = "\r\n";
         String twoHyphens = "--";
@@ -226,5 +351,6 @@ public class DetailService {
             e.printStackTrace();
         }
     }
+    */
 
 }
