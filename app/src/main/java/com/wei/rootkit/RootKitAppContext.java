@@ -3,10 +3,6 @@ package com.wei.rootkit;
 import android.os.Handler;
 import android.os.Looper;
 
-/**
- * @author leixiao
- *
- */
 public class RootKitAppContext extends AppContextBase {
 
     public static String TAG = RootKitAppContext.class.getSimpleName();

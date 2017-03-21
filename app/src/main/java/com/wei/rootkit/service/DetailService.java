@@ -4,25 +4,17 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.Looper;
 import android.util.Log;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -33,7 +25,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.internal.framed.FrameReader;
 
 import static android.content.Context.WIFI_SERVICE;
 
@@ -58,6 +49,11 @@ public class DetailService {
     private DetailService() {
     }
 
+    /**
+     * 根据包名得到日志信息
+     * @param packageName
+     * @return
+     */
     public String getLogContent(String packageName){
 
         String content="";
@@ -89,8 +85,13 @@ public class DetailService {
         return content;
     }
 
+    /**
+     * 根据包名和上下文,得到行为图
+     * @param packageName
+     * @param context
+     */
     public void generatePicture(String packageName,Context context){
-        ip=getIP(context);
+        ip = getIP(context);
         uploadAPK(packageName,context);
         uploadList();
         uploadFile(packageName);
@@ -176,6 +177,11 @@ public class DetailService {
     }
     */
 
+    /**
+     * 上传apk
+     * @param packageName
+     * @param context
+     */
     private void uploadAPK(String packageName,Context context){
         //补全请求地址
         //String requestUrl = String.format("%s/%s", upload_head, actionUrl);
@@ -228,6 +234,9 @@ public class DetailService {
 
     }
 
+    /**
+     * 上传packages.list
+     */
     private void uploadList(){
         //补全请求地址
         //String requestUrl = String.format("%s/%s", upload_head, actionUrl);
@@ -271,6 +280,10 @@ public class DetailService {
 
     }
 
+    /**
+     * 得到行为图
+     * @param packageName
+     */
     private void uploadFile(String packageName){
         final String pn=packageName.trim();
         //补全请求地址
