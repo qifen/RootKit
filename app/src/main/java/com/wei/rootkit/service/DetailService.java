@@ -8,6 +8,9 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
+import com.zhy.http.okhttp.OkHttpUtils;
+import com.zhy.http.okhttp.callback.StringCallback;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,6 +18,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -97,187 +102,178 @@ public class DetailService {
         uploadFile(packageName);
     }
 
-    /*
-    private void uploadAPK(String packageName,Context context){
-        String end = "\r\n";
-        String twoHyphens = "--";
-        String boundary = "******";
-
-        String uploadUrl="";//上传到的服务器地址
-        URL url = null;
-        try {
-            packageManager = context.getPackageManager();
-            PackageInfo packInfo = packageManager.getPackageInfo(packageName.trim(),0);
-            ApplicationInfo appInfo=packInfo.applicationInfo;
-            String apkPath=appInfo.sourceDir;
-            File f=new File(apkPath);
-            //判断安装包是否存在
-            if(f.exists()){
-                url = new URL(uploadUrl);
-                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-                httpURLConnection.setChunkedStreamingMode(128 * 1024);// 128K
-                // 允许输入输出流
-                httpURLConnection.setDoInput(true);
-                httpURLConnection.setDoOutput(true);
-                httpURLConnection.setUseCaches(false);
-                // 使用POST方法
-                httpURLConnection.setRequestMethod("POST");
-                httpURLConnection.setRequestProperty("Connection", "Keep-Alive");
-                httpURLConnection.setRequestProperty("Charset", "UTF-8");
-                httpURLConnection.setRequestProperty("Content-Type",
-                        "multipart/form-data;boundary=" + boundary);
-
-                DataOutputStream dos = new DataOutputStream(httpURLConnection.getOutputStream());
-                dos.writeBytes(twoHyphens + boundary + end);
-                dos.writeBytes("Content-Disposition: form-data; name=\"uploadfile\"; filename=\""
-                        + packageName + "-apk" + "\"" + end);//上传apk的文件名
-                dos.writeBytes(end);
-
-                //取得文件的FileInputStream
-                FileInputStream fis = new FileInputStream(apkPath);
-                //设定每次写入1024bytes
-                int bufferSize = 1024;
-                byte[] buffer = new byte[bufferSize];
-                int count = 0;
-                // 读取文件
-                while ((count = fis.read(buffer)) != -1) {
-                    //将数据写入DataOutputStream中
-                    dos.write(buffer, 0, count);
-                }
-                fis.close();
-                dos.writeBytes(end);
-                dos.writeBytes(twoHyphens + boundary + twoHyphens + end);
-                dos.flush();
-
-                //取得Response内容
-                InputStream is = httpURLConnection.getInputStream();
-                InputStreamReader isr = new InputStreamReader(is, "utf-8");
-                BufferedReader br = new BufferedReader(isr);
-                String result = br.readLine();
-
-                Log.d("UploadFileResult",result);
-
-                is.close();
-                dos.close();
-                httpURLConnection.disconnect();
-            }
-        } catch (MalformedURLException e) {
-            Log.d("UploadAPK","new URL error!");
-            e.printStackTrace();
-        } catch (ProtocolException e) {
-            Log.d("UploadAPK","ProtocolException");
-            e.printStackTrace();
-        } catch (IOException e) {
-            Log.d("UploadAPK","url.openConnection error!");
-            e.printStackTrace();
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.d("UploadAPK","PackageInfo not found");
-            e.printStackTrace();
-        }
-    }
-    */
 
     /**
      * 上传apk
      * @param packageName
      * @param context
      */
+//    private void uploadAPK(String packageName,Context context){
+//        //补全请求地址
+//        //String requestUrl = String.format("%s/%s", upload_head, actionUrl);
+//        String requestUrl=ip;
+//        MultipartBody.Builder builder = new MultipartBody.Builder();
+//        //设置类型
+//        builder.setType(MultipartBody.FORM);
+//        //追加参数
+//        builder.addFormDataPart("PackageName",packageName);
+//        packageManager = context.getPackageManager();
+//        PackageInfo packInfo = null;
+//        try {
+//            packInfo = packageManager.getPackageInfo(packageName.trim(),0);
+//            ApplicationInfo appInfo=packInfo.applicationInfo;
+//            String apkPath=appInfo.sourceDir;
+//            File apkFile=new File(apkPath);
+//
+//            if(apkFile.exists()){
+//                RequestBody requestBody=RequestBody.create(MediaType.parse("apk"),apkFile);
+//                builder.addFormDataPart("APK",packageName,requestBody);
+//
+//                //创建RequestBody
+//                RequestBody body = builder.build();
+//                //创建Request
+//                final Request request = new Request.Builder().url(requestUrl).post(body).build();
+//                final Call call = okHttpClient.newBuilder().writeTimeout(50, TimeUnit.SECONDS).build().newCall(request);
+//
+//                call.enqueue(new Callback() {
+//                    @Override
+//                    public void onFailure(Call call, IOException e) {
+//                        Log.e("uploadAPK", "Callback--"+e.toString());
+//                    }
+//                    @Override
+//                    public void onResponse(Call call, Response response) throws IOException {
+//                        if (response.isSuccessful()) {
+//                            String string = response.body().string();
+//                            Log.e("uploadAPK", "response ----->" + string);
+//                        } else {
+//                            Log.e("uploadAPK", "Callback--upload failed!");
+//                        }
+//                    }
+//
+//                });
+//            }
+//
+//        } catch (PackageManager.NameNotFoundException e) {
+//            Log.e("uploadAPK","  getPackageInfo");
+//            e.printStackTrace();
+//        }
+//
+//    }
     private void uploadAPK(String packageName,Context context){
-        //补全请求地址
-        //String requestUrl = String.format("%s/%s", upload_head, actionUrl);
-        String requestUrl=ip;
-        MultipartBody.Builder builder = new MultipartBody.Builder();
-        //设置类型
-        builder.setType(MultipartBody.FORM);
-        //追加参数
-        builder.addFormDataPart("PackageName",packageName);
+        //请求地址
+        String requestUrl = "http://" + getIP(context) + ":8080/rootKitServer/uploadApk.action";
         packageManager = context.getPackageManager();
-        PackageInfo packInfo = null;
+        PackageInfo packInfo;
         try {
             packInfo = packageManager.getPackageInfo(packageName.trim(),0);
             ApplicationInfo appInfo=packInfo.applicationInfo;
             String apkPath=appInfo.sourceDir;
-            File apkFile=new File(apkPath);
+            String[] tmp = apkPath.split("/");
+            String apkName = tmp[tmp.length - 1];
+            File apkFile = new File(apkPath);
 
             if(apkFile.exists()){
-                RequestBody requestBody=RequestBody.create(MediaType.parse("apk"),apkFile);
-                builder.addFormDataPart("APK",packageName,requestBody);
+                Map<String, String> params = new HashMap<>();
+                params.put("apkName", apkName);
+                params.put("apkContentType", "application/octet-stream");
+                OkHttpUtils.post()
+                        .addFile("apk", apkName, apkFile)
+                        .url(requestUrl)
+                        .params(params)
+                        .build()
+                        .execute(new StringCallback() {
+                            @Override
+                            public void onError(Call call, Exception e, int id) {
+                                Log.e("uploadAPK", "callback----" + e.toString());
+                            }
 
-                //创建RequestBody
-                RequestBody body = builder.build();
-                //创建Request
-                final Request request = new Request.Builder().url(requestUrl).post(body).build();
-                final Call call = okHttpClient.newBuilder().writeTimeout(50, TimeUnit.SECONDS).build().newCall(request);
-
-                call.enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-                        Log.e("uploadAPK", "Callback--"+e.toString());
-                    }
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        if (response.isSuccessful()) {
-                            String string = response.body().string();
-                            Log.e("uploadAPK", "response ----->" + string);
-                        } else {
-                            Log.e("uploadAPK", "Callback--upload failed!");
-                        }
-                    }
-
-                });
+                            @Override
+                            public void onResponse(String response, int id) {
+                                Log.d("uploadAPK", "success");
+                            }
+                        });
             }
 
         } catch (PackageManager.NameNotFoundException e) {
-            Log.e("uploadAPK","  getPackageInfo");
+            Log.e("uploadAPK", "getPackageInfo");
             e.printStackTrace();
         }
-
     }
+
 
     /**
      * 上传packages.list
      */
+//    private void uploadList(){
+//        //补全请求地址
+//        //String requestUrl = String.format("%s/%s", upload_head, actionUrl);
+//        String requestUrl=ip;
+//        MultipartBody.Builder builder = new MultipartBody.Builder();
+//        //设置类型
+//        builder.setType(MultipartBody.FORM);
+//        //追加参数
+//        builder.addFormDataPart("FileName","packages.list");
+//
+//        String listPath="/data/system/packages.list";
+//        File listFile=new File(listPath);
+//
+//        if(listFile.exists()){
+//            RequestBody requestBody=RequestBody.create(MediaType.parse("ListFile"),listFile);
+//            builder.addFormDataPart("File","packages.list",requestBody);
+//
+//            //创建RequestBody
+//            RequestBody body = builder.build();
+//            //创建Request
+//            final Request request = new Request.Builder().url(requestUrl).post(body).build();
+//            final Call call = okHttpClient.newBuilder().writeTimeout(50, TimeUnit.SECONDS).build().newCall(request);
+//
+//            call.enqueue(new Callback() {
+//                @Override
+//                public void onFailure(Call call, IOException e) {
+//                    Log.e("uploadList", "Callback--"+e.toString());
+//                }
+//                @Override
+//                public void onResponse(Call call, Response response) throws IOException {
+//                    if (response.isSuccessful()) {
+//                        String string = response.body().string();
+//                        Log.e("uploadList", "response ----->" + string);
+//                    } else {
+//                        Log.e("uploadList", "Callback--upload failed!");
+//                    }
+//                }
+//
+//            });
+//        }
+//
+//    }
     private void uploadList(){
-        //补全请求地址
-        //String requestUrl = String.format("%s/%s", upload_head, actionUrl);
-        String requestUrl=ip;
-        MultipartBody.Builder builder = new MultipartBody.Builder();
-        //设置类型
-        builder.setType(MultipartBody.FORM);
-        //追加参数
-        builder.addFormDataPart("FileName","packages.list");
-
+        //请求地址
+        String requestUrl = "http://" + "169.254.183.119" + ":8080/rootKitServer/uploadPackage.action";
+        String fileName = "packages.list";
         String listPath="/data/system/packages.list";
         File listFile=new File(listPath);
 
         if(listFile.exists()){
-            RequestBody requestBody=RequestBody.create(MediaType.parse("ListFile"),listFile);
-            builder.addFormDataPart("File","packages.list",requestBody);
+            Map<String, String> params = new HashMap<>();
+            params.put("packagesName", fileName);
+            params.put("packagesContentType", "application/octet-stream");
+            OkHttpUtils.post()
+                    .addFile("packages", fileName, listFile)
+                    .url(requestUrl)
+                    .params(params)
+                    .build()
+                    .execute(new StringCallback() {
+                        @Override
+                        public void onError(Call call, Exception e, int id) {
+                            Log.e("uploadList", "callback----" + e.toString());
+                        }
 
-            //创建RequestBody
-            RequestBody body = builder.build();
-            //创建Request
-            final Request request = new Request.Builder().url(requestUrl).post(body).build();
-            final Call call = okHttpClient.newBuilder().writeTimeout(50, TimeUnit.SECONDS).build().newCall(request);
-
-            call.enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    Log.e("uploadList", "Callback--"+e.toString());
-                }
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    if (response.isSuccessful()) {
-                        String string = response.body().string();
-                        Log.e("uploadList", "response ----->" + string);
-                    } else {
-                        Log.e("uploadList", "Callback--upload failed!");
-                    }
-                }
-
-            });
+                        @Override
+                        public void onResponse(String response, int id) {
+                            Log.d("uploadList", "success");
+                        }
+                    });
         }
-
     }
 
     /**
@@ -338,85 +334,9 @@ public class DetailService {
             });
         }
     }
+    
 
-    /*
-    private void uploadFile(String packageName){
-        String end = "\r\n";
-        String twoHyphens = "--";
-        String boundary = "******";
-
-        String uploadUrl="";//上传到的服务器地址
-        URL url = null;
-        try {
-            url = new URL(uploadUrl);
-            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-            httpURLConnection.setChunkedStreamingMode(128 * 1024);// 128K
-            // 允许输入输出流
-            httpURLConnection.setDoInput(true);
-            httpURLConnection.setDoOutput(true);
-            httpURLConnection.setUseCaches(false);
-            // 使用POST方法
-            httpURLConnection.setRequestMethod("POST");
-            httpURLConnection.setRequestProperty("Connection", "Keep-Alive");
-            httpURLConnection.setRequestProperty("Charset", "UTF-8");
-            httpURLConnection.setRequestProperty("Content-Type",
-                    "multipart/form-data;boundary=" + boundary);
-
-            DataOutputStream dos = new DataOutputStream(httpURLConnection.getOutputStream());
-            dos.writeBytes(twoHyphens + boundary + end);
-            dos.writeBytes("Content-Disposition: form-data; name=\"uploadfile\"; filename=\""
-                    + packageName + "\"" + end);
-            dos.writeBytes(end);
-
-            String uploadFile="/data/data/com.wei.rootkit/files/log/"+packageName;
-            //取得文件的FileInputStream
-            FileInputStream fis = new FileInputStream(uploadFile);
-            //设定每次写入1024bytes
-            int bufferSize = 1024;
-            byte[] buffer = new byte[bufferSize];
-            int count = 0;
-            // 读取文件
-            while ((count = fis.read(buffer)) != -1) {
-                //将数据写入DataOutputStream中
-                dos.write(buffer, 0, count);
-            }
-            fis.close();
-            dos.writeBytes(end);
-            dos.writeBytes(twoHyphens + boundary + twoHyphens + end);
-            dos.flush();
-
-            //取得Response内容？？？？？
-            InputStream is = httpURLConnection.getInputStream();
-            String picPath="/data/data/com.wei.rootkit/files/pic/"+packageName;
-            FileOutputStream outputStream = new FileOutputStream(picPath);
-            while((count=is.read(buffer))!=-1){
-                outputStream.write(buffer, 0, count);
-            }
-            is.close();
-            outputStream.close();
-
-//            InputStreamReader isr = new InputStreamReader(is, "utf-8");
-//            BufferedReader br = new BufferedReader(isr);
-//            String result = br.readLine();
-
-            Log.d("UploadFileResult","Success!");
-
-            dos.close();
-            httpURLConnection.disconnect();
-
-        } catch (MalformedURLException e) {
-            Log.d("UploadFile","new URL error!");
-            e.printStackTrace();
-        } catch (ProtocolException e) {
-            Log.d("UploadFile","ProtocolException");
-            e.printStackTrace();
-        } catch (IOException e) {
-            Log.d("UploadFile","url.openConnection error!");
-            e.printStackTrace();
-        }
-    }
-    */
-
+    // TODO: 17/3/24 该ip为本机在局域网内的ip,测试暂不可用,需要服务器ip,暂时需要每次手动查询改写
     private String getIP(Context context){
         WifiManager wifiService = (WifiManager) context.getSystemService(WIFI_SERVICE);
         WifiInfo wifiinfo = wifiService.getConnectionInfo();
