@@ -160,8 +160,8 @@ public class DetailService {
 //
 //    }
     private void uploadAPK(String packageName,Context context){
-        //请求地址
-        String requestUrl = "http://" + getIP(context) + ":8080/rootKitServer/uploadApk.action";
+        //请求地址,ip查询后更改
+        String requestUrl = "http://" + "手动输入ip" + ":8080/rootKitServer/uploadApk.action";
         packageManager = context.getPackageManager();
         PackageInfo packInfo;
         try {
@@ -247,8 +247,8 @@ public class DetailService {
 //
 //    }
     private void uploadList(){
-        //请求地址
-        String requestUrl = "http://" + "169.254.183.119" + ":8080/rootKitServer/uploadPackage.action";
+        //请求地址,ip查询后更改
+        String requestUrl = "http://" + "手动输入ip" + ":8080/rootKitServer/uploadPackage.action";
         String fileName = "packages.list";
         String listPath="/data/system/packages.list";
         File listFile=new File(listPath);
@@ -334,7 +334,7 @@ public class DetailService {
             });
         }
     }
-    
+
 
     // TODO: 17/3/24 该ip为本机在局域网内的ip,测试暂不可用,需要服务器ip,暂时需要每次手动查询改写
     private String getIP(Context context){
