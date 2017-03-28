@@ -12,12 +12,14 @@ import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -44,7 +46,7 @@ public class DetailService {
 
     private OkHttpClient okHttpClient = new OkHttpClient();
 
-    private String ip="";
+    private String ip="172.17.156.145";
 
     public static DetailService getInstance() {
 
@@ -97,9 +99,9 @@ public class DetailService {
      */
     public void generatePicture(String packageName,Context context){
         ip = getIP(context);
-        uploadAPK(packageName,context);
+        //uploadAPK(packageName,context);
         uploadList();
-        uploadFile(packageName);
+        //uploadFile(packageName);
     }
 
 
@@ -160,8 +162,8 @@ public class DetailService {
 //
 //    }
     private void uploadAPK(String packageName,Context context){
-        //请求地址,ip查询后更改
-        String requestUrl = "http://" + "手动输入ip" + ":8080/rootKitServer/uploadApk.action";
+        //请求地址,ip查询后更改，修改ip
+        String requestUrl = "http://" + "172.17.156.145" + ":8080/rootKitServer/uploadApk.action";
         packageManager = context.getPackageManager();
         PackageInfo packInfo;
         try {
@@ -247,10 +249,27 @@ public class DetailService {
 //
 //    }
     private void uploadList(){
+        Process process = null;
+        Runtime runtime=Runtime.getRuntime();
+        try {
+            process=runtime.exec("su");
+            OutputStream localOutputStream = process.getOutputStream();
+            DataOutputStream localDataOutputStream = new DataOutputStream(localOutputStream);
+
+            String cpCmd="cp /data/system/packages.list /data/data/com.wei.rootkit/packages.list";
+            localDataOutputStream.writeBytes(cpCmd);
+            localDataOutputStream.flush();
+
+            localDataOutputStream.writeBytes("exit\n");
+            localDataOutputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         //请求地址,ip查询后更改
-        String requestUrl = "http://" + "手动输入ip" + ":8080/rootKitServer/uploadPackage.action";
+        String requestUrl = "http://" + "172.17.156.145" + ":8080/rootKitServer/uploadPackage.action";
         String fileName = "packages.list";
-        String listPath="/data/system/packages.list";
+        String listPath="/data/data/com.wei.rootkit/packages.list";
         File listFile=new File(listPath);
 
         if(listFile.exists()){
@@ -270,10 +289,12 @@ public class DetailService {
 
                         @Override
                         public void onResponse(String response, int id) {
-                            Log.d("uploadList", "success");
+                            Log.e("uploadList", "success");
                         }
                     });
         }
+
+
     }
 
     /**
@@ -284,7 +305,7 @@ public class DetailService {
         final String pn=packageName.trim();
         //补全请求地址
         //String requestUrl = String.format("%s/%s", upload_head, actionUrl);
-        String requestUrl=ip;
+        String requestUrl="http://" + "172.17.156.145" + ":8080/rootKitServer/uploadLogFile.action";
         MultipartBody.Builder builder = new MultipartBody.Builder();
         //设置类型
         builder.setType(MultipartBody.FORM);
@@ -318,7 +339,9 @@ public class DetailService {
                         byte[] buffer = new byte[bufferSize];
                         int count = 0;
                         InputStream is=response.body().byteStream();
-                        String picPath="/data/data/com.wei.rootkit/files/pic/"+pn;
+                        //修改
+                        //String picPath="/sdcard/pic/"+pn;
+                        String picPath="/sdcard/pic/a.png";
                         FileOutputStream outputStream = new FileOutputStream(picPath);
 
                         while((count=is.read(buffer))!=-1){

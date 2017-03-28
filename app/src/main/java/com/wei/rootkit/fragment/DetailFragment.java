@@ -46,8 +46,8 @@ public class DetailFragment extends Fragment {
             textView.setText(content);
 
         }else{//显示图
-            //String imagePath="/data/data/com.wei.rootkit/files/pic/"+packageName;
-            String imagePath="/sdcard/a.png";
+            String imagePath="/sdcard/pic/a.png";
+            //String imagePath="/sdcard/pic/"+packageName.trim();
             File f=new File(imagePath);
 
             if(!f.exists()){
