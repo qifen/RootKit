@@ -64,8 +64,8 @@ public class DetailService {
     public String getLogContent(String packageName){
 
         String content="";
-        //String inputPath = "/data/data/com.wei.rootkit/files/log/"+packageName;
-        String inputPath="/sdcard/"+packageName+".log";
+        //String inputPath = "/data/data/com.wei.rootkit/files/log/"+packageName.trim();
+        String inputPath="/sdcard/sample.log";
 
         File inputFile = new File(inputPath);
         if(inputFile.exists()){
@@ -177,7 +177,7 @@ public class DetailService {
         }
 
         //请求地址,ip查询后更改
-        String requestUrl = "http://" + "172.17.241.196" + ":8080/test/uploadPackage.action";
+        String requestUrl = "http://" + "192.168.31.150" + ":8080/test/uploadPackage.action";
         String fileName = "packages.list";
         //String listPath="/data/data/com.wei.rootkit/files/packages.list";
         String listPath="/sdcard/packages.list";
@@ -214,7 +214,7 @@ public class DetailService {
     private void uploadFile(String packageName){
         final String pn=packageName.trim();
         //补全请求地址
-        String requestUrl="http://" + "172.17.156.145" + ":8080/test/uploadLogFile.action";
+        String requestUrl="http://" + "192.168.31.150" + ":8080/test/uploadLogFile.action";
         MultipartBody.Builder builder = new MultipartBody.Builder();
         //设置类型
         builder.setType(MultipartBody.FORM);
@@ -222,7 +222,7 @@ public class DetailService {
         builder.addFormDataPart("PackageName",pn);
         //String logPath="/data/data/com.wei.rootkit/files/log/"+packageName.trim();
         //调试用
-        String logPath="/sdcard/sina.tianqitong.log";
+        String logPath="/sdcard/sample.log";
         File logFile=new File(logPath);
 
         if(logFile.exists()){
@@ -253,7 +253,12 @@ public class DetailService {
                         //修改
                         //String picPath="/sdcard/pic/"+pn;
                         String picPath="/sdcard/pic/a.png";
-                        FileOutputStream outputStream = new FileOutputStream(picPath);
+                        File pic=new File(picPath);
+                        if(pic.exists()){
+                           pic.delete();
+                        }
+                        pic.createNewFile();
+                        FileOutputStream outputStream = new FileOutputStream(pic);
 
                         while((count=is.read(buffer))!=-1){
                             outputStream.write(buffer, 0, count);

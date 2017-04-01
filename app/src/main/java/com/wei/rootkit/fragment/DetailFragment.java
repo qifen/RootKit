@@ -50,11 +50,10 @@ public class DetailFragment extends Fragment {
             //String imagePath="/sdcard/pic/"+packageName.trim();
             File f=new File(imagePath);
 
-            if(!f.exists()){
-                detailService.generatePicture(packageName.trim(),this.getContext());
-            }
+            detailService.generatePicture(packageName.trim(),this.getContext());
 
             imageView = (ImageView) rootView.findViewById(R.id.pinchImageView);
+            Log.e("DetailFragment","finish pic!");
             Bitmap bm = BitmapFactory.decodeFile(imagePath);
             imageView.setImageBitmap(bm);
 
