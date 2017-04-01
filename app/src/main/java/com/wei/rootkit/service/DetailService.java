@@ -220,7 +220,9 @@ public class DetailService {
         builder.setType(MultipartBody.FORM);
         //追加参数
         builder.addFormDataPart("PackageName",pn);
-        String logPath="/data/data/com.wei.rootkit/files/log/"+packageName.trim();
+        //String logPath="/data/data/com.wei.rootkit/files/log/"+packageName.trim();
+        //调试用
+        String logPath="/sdcard/sina.tianqitong.log";
         File logFile=new File(logPath);
 
         if(logFile.exists()){
