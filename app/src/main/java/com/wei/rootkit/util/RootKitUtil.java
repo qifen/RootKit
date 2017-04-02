@@ -4,6 +4,9 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+
+import com.wei.rootkit.RootKitAppContext;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -49,5 +52,36 @@ public class RootKitUtil {
         Date date = new Date(lt);
         res = simpleDateFormat.format(date);
         return res;
+    }
+
+    public static Thread getMainThread() {
+        return RootKitAppContext.getMainThread();
+    }
+
+    public static long getMainThreadId() {
+        return RootKitAppContext.getMainThreadId();
+    }
+
+    /** 获取主线程的handler */
+    public static Handler getHandler() {
+        return RootKitAppContext.getMainThreadHandler();
+    }
+
+    /** 在主线程执行runnable */
+    public static boolean post(Runnable runnable) {
+        return getHandler().post(runnable);
+    }
+
+    //判断当前的线程是不是在主线程
+    public static boolean isRunInMainThread() {
+        return android.os.Process.myTid() == getMainThreadId();
+    }
+
+    public static void runInMainThread(Runnable runnable) {
+        if (isRunInMainThread()) {
+            runnable.run();
+        } else {
+            post(runnable);
+        }
     }
 }

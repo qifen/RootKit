@@ -4,10 +4,16 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
+import android.widget.ImageView;
 
+import com.wei.rootkit.R;
+import com.wei.rootkit.fragment.DetailFragment;
+import com.wei.rootkit.util.RootKitUtil;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
@@ -48,12 +54,19 @@ public class DetailService {
 
     private String ip="172.17.156.145";
 
+    private DetailFragment detailFragment;
+
     public static DetailService getInstance() {
 
         return detailService;
     }
 
     private DetailService() {
+    }
+
+
+    public void setDetailFragment(DetailFragment detailFragment) {
+        this.detailFragment = detailFragment;
     }
 
     /**
@@ -252,7 +265,7 @@ public class DetailService {
                         InputStream is=response.body().byteStream();
                         //修改
                         //String picPath="/sdcard/pic/"+pn;
-                        String picPath="/sdcard/pic/a.png";
+                        final String picPath="/sdcard/pic/a.png";
                         File pic=new File(picPath);
                         if(pic.exists()){
                            pic.delete();
@@ -265,6 +278,19 @@ public class DetailService {
                         }
                         is.close();
                         outputStream.close();
+
+                        //显示图片
+                        if (null != detailFragment && detailFragment.getView() != null){
+                            RootKitUtil.runInMainThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ImageView imageView = (ImageView) detailFragment.getView().findViewById(R.id.pinchImageView);
+                                    Bitmap bm = BitmapFactory.decodeFile(picPath);
+                                    imageView.setImageBitmap(bm);
+                                }
+                            });
+                        }
+
 
                         Log.e("uploadFile", "Success!");
                     } else {
