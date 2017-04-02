@@ -21,6 +21,8 @@ public class RootKitAppContext extends AppContextBase {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        initWhenAppStart();
     }
 
     public static RootKitAppContext getApplication() {
@@ -38,6 +40,18 @@ public class RootKitAppContext extends AppContextBase {
     }
     public static int getMainThreadId() {
         return mainTheadId;
+    }
+
+    /**
+     * app启动时初始化
+     */
+    public void initWhenAppStart() {
+        isAppInited = true;
+
+        this.mainThreadHandler = new Handler();
+        this.mainThreadLooper = getMainLooper();
+        this.mainThead = Thread.currentThread();
+        this.mainTheadId = android.os.Process.myTid();
     }
 
 }
