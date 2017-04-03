@@ -65,14 +65,14 @@ public class InfoService {
     * */
     private void insertModule(){
 
-        Log.v("TAG", "进入insertModule");
+        Log.e("TAG", "进入insertModule");
 
         //String[] command={"su","-c","\"insmod /data/data/com.wei.rootkit/files/rootkit.ko\""};
         Process process = null;
 
         try {
             // 执行命令
-            Log.d("TAG","执行命令");
+            Log.e("TAG","执行命令");
 
             Runtime runtime=Runtime.getRuntime();
             //获得root权限
@@ -96,17 +96,17 @@ public class InfoService {
             localDataOutputStream.writeBytes(cmd);
             localDataOutputStream.flush();
 
-            Log.d("TAG","执行命令testDir2结束，开始执行insmod");
+            Log.e("TAG","执行命令testDir2结束，开始执行insmod");
 
             cmd="insmod rootkit.ko\n";
             localDataOutputStream.writeBytes(cmd);
             localDataOutputStream.flush();
+            int v=process.waitFor();
 
             localDataOutputStream.writeBytes("exit\n");
             localDataOutputStream.flush();
 
-            int v=process.waitFor();
-            Log.d("TAG","执行命令完毕");
+            Log.e("TAG","执行命令完毕");
 
             /*
             byte[] buffer = new byte[localInputStream.available()];
@@ -120,10 +120,10 @@ public class InfoService {
             */
 
         } catch (IOException e) {
-            Log.d("TAG","IO异常");
+            Log.e("insmod","IO异常");
             e.printStackTrace();
         } catch (InterruptedException e) {
-            Log.d("TAG","Interrupted异常");
+            Log.e("insmod","Interrupted异常");
             e.printStackTrace();
         }finally{
             if (null != process)
