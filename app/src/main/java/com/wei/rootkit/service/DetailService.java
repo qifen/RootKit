@@ -52,7 +52,7 @@ public class DetailService {
 
     private OkHttpClient okHttpClient = new OkHttpClient();
 
-    private String ip="172.17.156.145";
+    private String ip="192.168.31.21";
 
     private DetailFragment detailFragment;
 
@@ -89,8 +89,28 @@ public class DetailService {
                     BufferedReader buffreader = new BufferedReader(inputreader);
                     String line;
                     //分行读取
+                    int count=0;
                     while (( line = buffreader.readLine()) != null) {
-                        content=content+line + "\n";
+
+                        count++;
+
+                        //进行处理
+                        String[] tmp;
+                        String result="";
+                        tmp=line.split("]");
+                        if(tmp[1].contains(")")){
+                            result=tmp[1];
+                            int loc=result.indexOf(')');
+                            result=result.substring(loc+1);
+
+                            loc=result.indexOf(')');
+                            result=result.substring(loc+1);
+
+                        }else{
+                            result=tmp[1];
+                        }
+
+                        content=content+count+".\n"+result + " ;\n\n";
                     }
                     instream.close();
                 }
@@ -111,7 +131,7 @@ public class DetailService {
      * @param context
      */
     public void generatePicture(String packageName,Context context){
-        ip = getIP(context);
+        //ip = getIP(context);
         //uploadAPK(packageName,context);
         uploadList();
         uploadFile(packageName);
@@ -190,7 +210,7 @@ public class DetailService {
         }
 
         //请求地址,ip查询后更改
-        String requestUrl = "http://" + "192.168.31.150" + ":8080/test/uploadPackage.action";
+        String requestUrl = "http://" + ip + ":8080/test/uploadPackage.action";
         String fileName = "packages.list";
         //String listPath="/data/data/com.wei.rootkit/files/packages.list";
         String listPath="/sdcard/packages.list";
@@ -227,7 +247,7 @@ public class DetailService {
     private void uploadFile(String packageName){
         final String pn=packageName.trim();
         //补全请求地址
-        String requestUrl="http://" + "192.168.31.150" + ":8080/test/uploadLogFile.action";
+        String requestUrl="http://" + ip + ":8080/test/uploadLogFile.action";
         MultipartBody.Builder builder = new MultipartBody.Builder();
         //设置类型
         builder.setType(MultipartBody.FORM);
