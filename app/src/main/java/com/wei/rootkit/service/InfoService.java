@@ -101,12 +101,13 @@ public class InfoService {
             cmd="insmod rootkit.ko\n";
             localDataOutputStream.writeBytes(cmd);
             localDataOutputStream.flush();
-            int v=process.waitFor();
 
             localDataOutputStream.writeBytes("exit\n");
             localDataOutputStream.flush();
 
             Log.e("TAG","执行命令完毕");
+
+            process.waitFor();
 
             /*
             byte[] buffer = new byte[localInputStream.available()];
@@ -123,9 +124,8 @@ public class InfoService {
             Log.e("insmod","IO异常");
             e.printStackTrace();
         } catch (InterruptedException e) {
-            Log.e("insmod","Interrupted异常");
             e.printStackTrace();
-        }finally{
+        } finally{
             if (null != process)
                 process.destroy();
         }
@@ -168,6 +168,41 @@ public class InfoService {
 
         if(f.exists()){
             f.delete();
+        }
+
+    }
+
+
+    /*
+    结束监测——卸载内核模块rootkit.ko
+    */
+    public void finishDetect(){
+
+        Process process = null;
+
+        try {
+            // 执行命令
+            Runtime runtime=Runtime.getRuntime();
+            //获得root权限
+            process=runtime.exec("su");
+            //从Process对象获得输出流
+            OutputStream localOutputStream = process.getOutputStream();
+            DataOutputStream localDataOutputStream = new DataOutputStream(localOutputStream);
+
+            String cmd="rmmod rootkit\n";
+            localDataOutputStream.writeBytes(cmd);
+
+            localDataOutputStream.writeBytes("exit\n");
+            localDataOutputStream.flush();
+
+            Log.v("TAG","执行命令完毕");
+            int v=process.waitFor();
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
     }

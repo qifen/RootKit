@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity{
                             .setPositiveButton("分析", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
+                                    infoService.finishDetect();
                                     Intent intent = new Intent(MainActivity.this, ResultActivity.class);
                                     intent.putExtra("result", (Serializable) result);
                                     startActivity(intent);
