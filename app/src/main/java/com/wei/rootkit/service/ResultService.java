@@ -46,8 +46,8 @@ public class ResultService {
                         while (( line = buffreader.readLine()) != null) {
                             //判断是否为此应用的日志
                             if(line.contains("sys_call_table") || line.contains(uid.trim())){
-                                content += line + "\n";
-                            }
+                                content=content+line+"\n";
+                             }
                         }
                         instream.close();
                     }
