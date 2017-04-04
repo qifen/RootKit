@@ -9,7 +9,9 @@ import android.graphics.BitmapFactory;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.wei.rootkit.R;
 import com.wei.rootkit.fragment.DetailFragment;
@@ -52,7 +54,7 @@ public class DetailService {
 
     private OkHttpClient okHttpClient = new OkHttpClient();
 
-    private String ip="192.168.31.21";
+    private String ip="192.168.191.1";
 
     private DetailFragment detailFragment;
 
@@ -77,8 +79,8 @@ public class DetailService {
     public String getLogContent(String packageName){
 
         String content="";
-        String inputPath = "/data/data/com.wei.rootkit/files/log/"+packageName.trim();
-        //String inputPath="/sdcard/sample.log";
+//        String inputPath = "/data/data/com.wei.rootkit/files/log/"+packageName.trim();
+        String inputPath="/sdcard/sample.log";
 
         File inputFile = new File(inputPath);
         if(inputFile.exists()){
@@ -300,13 +302,19 @@ public class DetailService {
                         outputStream.close();
 
                         //显示图片
-                        if (null != detailFragment && detailFragment.getView() != null){
+                        if (null != detailFragment
+                                && detailFragment.getView() != null
+                                && detailFragment.getArguments() != null
+                                && detailFragment.getArguments().getInt("index") == 1){
                             RootKitUtil.runInMainThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     ImageView imageView = (ImageView) detailFragment.getView().findViewById(R.id.pinchImageView);
+                                    TextView textView = (TextView) detailFragment.getView().findViewById(R.id.textView);
                                     Bitmap bm = BitmapFactory.decodeFile(picPath);
                                     imageView.setImageBitmap(bm);
+                                    imageView.setVisibility(View.VISIBLE);
+                                    textView.setVisibility(View.GONE);
                                 }
                             });
                         }

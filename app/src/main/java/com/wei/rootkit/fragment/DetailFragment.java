@@ -18,8 +18,6 @@ import com.wei.rootkit.service.DetailService;
 
 public class DetailFragment extends Fragment {
     private View rootView;
-    private int index=0;
-    private String packageName="";
     private DetailService detailService=DetailService.getInstance();
 
     private TextView textView;
@@ -28,33 +26,33 @@ public class DetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.detail_fragment, container, false);
-        detailService.setDetailFragment(this);
+        initView();
+        return rootView;
+    }
 
+    private void initView(){
         textView=(TextView) rootView.findViewById(R.id.textView);
         imageView = (ImageView) rootView.findViewById(R.id.pinchImageView);
+    }
 
-        Bundle bundle=this.getArguments();
-        packageName=bundle.getString("packageName");
-        index=bundle.getInt("index");
+    public void loadView(){
+        detailService.setDetailFragment(this);
 
-        if(index==0){//显示日志
-            String content=detailService.getLogContent(packageName.trim());
+        Bundle bundle = getArguments();
+        String packageName = bundle.getString("packageName");
+        int index = bundle.getInt("index");
+
+        if(index == 0){//显示日志
+            String content = detailService.getLogContent(packageName.trim());
 
             textView.setMovementMethod(ScrollingMovementMethod.getInstance());
             textView.setText(content);
+            textView.setVisibility(View.VISIBLE);
+            imageView.setVisibility(View.GONE);
 
         }else{//显示图
-//            String imagePath="/sdcard/pic/a.png";
-            //String imagePath="/sdcard/pic/"+packageName.trim();
-//            File f=new File(imagePath);
-
-            detailService.generatePicture(packageName.trim(),this.getContext());
-
-//            Log.e("DetailFragment","finish pic!");
-//            Bitmap bm = BitmapFactory.decodeFile(imagePath);
-//            imageView.setImageBitmap(bm);
+            detailService.generatePicture(packageName.trim(), this.getContext());
 
         }
-        return rootView;
     }
 }

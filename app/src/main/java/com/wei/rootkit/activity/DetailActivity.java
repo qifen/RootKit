@@ -21,11 +21,11 @@ import java.util.List;
  * Created by weiyilin on 16/12/27.
  */
 
-public class DetailActivity extends AppCompatActivity {
-    private HashMap<Integer, Fragment> mFragments = new HashMap<Integer, Fragment>();
+public class DetailActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
+    private HashMap<Integer, Fragment> mFragments = new HashMap<>();
     private ViewPager viewPager;
     private PagerTab tabs;
-    private FragmentStatePagerAdapter pagerAdapter;
+    private DetailPagerAdapter pagerAdapter;
 
     private List<String> titleList;
 
@@ -55,16 +55,33 @@ public class DetailActivity extends AppCompatActivity {
         titleList.add("行为日志");
         titleList.add("行为图");
 
-        pagerAdapter = new InfoPagerAdapter(getSupportFragmentManager());
+        pagerAdapter = new DetailPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(pagerAdapter);
         tabs.setViewPager(viewPager);
+        tabs.setOnPageChangeListener(this);
     }
 
-    private class InfoPagerAdapter extends FragmentStatePagerAdapter {
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        DetailFragment detailFragment = (DetailFragment) pagerAdapter.getItem(position);
+        detailFragment.loadView();
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
+    private class DetailPagerAdapter extends FragmentStatePagerAdapter {
 
         private String[] info_names;
 
-        public InfoPagerAdapter(FragmentManager fm) {
+        public DetailPagerAdapter(FragmentManager fm) {
             super(fm);
             info_names = titleList.toArray(new String[titleList.size()]);
         }
@@ -79,25 +96,20 @@ public class DetailActivity extends AppCompatActivity {
             Fragment fragment = mFragments.get(position);
 
             if (fragment == null) {
-                Bundle bundle = new Bundle();
                 switch (position) {
                     case 0:
-                        bundle.putInt("index", position);
-                        bundle.putString("packageName", packageName.trim());
-
                         fragment = new DetailFragment();
-                        fragment.setArguments(bundle);
                         break;
                     default:
-                        bundle.putInt("index", position);
-                        bundle.putString("packageName", packageName.trim());
-
                         fragment = new DetailFragment();
-                        fragment.setArguments(bundle);
                         break;
 
                 }
                 mFragments.put(position, fragment);
+                Bundle bundle = new Bundle();
+                bundle.putInt("index", position);
+                bundle.putString("packageName", packageName.trim());
+                fragment.setArguments(bundle);
             }
             return fragment;
         }
