@@ -43,41 +43,12 @@ public class MainService {
             File logDir= new File(context.getFilesDir() + "/log");
             logDir.mkdir();
 
-            //创建pic目录，存放单个app的生成图
-            File picDir= new File(context.getFilesDir() + "/pic");
+            //创建pic目录，生成图
+            File picDir= new File("sdcard/pic");
             picDir.mkdir();
 
             //拷贝assets中的文件
             copyAssetFileToFiles(context,"rootkit.ko");
-            /*
-            String filePath="/data/data/com.wei.rootkit/files/";
-            File ko=new File(filePath+"rootkit.ko");
-            InputStream in = null;
-            FileOutputStream out = null;
-
-            try {
-                in=context.getAssets().open("rootkit.ko");// 从assets目录下复制
-                out = new FileOutputStream(ko);
-
-                int length = -1;
-                byte[] buf = new byte[1024];
-                while ((length = in.read(buf)) != -1)
-                {
-                    out.write(buf, 0, length);
-                }
-                out.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }finally {
-
-                try {
-                    in.close();
-                    out.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            */
 
             //拷贝aidl文件
             File dir = new File(context.getFilesDir() + "/aidl");
@@ -115,11 +86,6 @@ public class MainService {
     }
 
     public void exit(){
-        String logPath="/data/data/com.wei.rootkit/files/myLog";
-        File f=new File(logPath);
 
-        if(f.exists()){
-            f.delete();
-        }
     }
 }

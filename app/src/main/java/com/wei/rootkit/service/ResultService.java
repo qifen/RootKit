@@ -26,12 +26,13 @@ public class ResultService {
 
     public void generateLog(String packageName,String uid){
 
-        String logPath="/data/data/com.wei.rootkit/files/log/"+packageName;
+        String logPath="/data/data/com.wei.rootkit/files/log/"+packageName.trim();
         //判断在此次检测中是否生成过app日志文件
         File f=new File(logPath);
         if(!f.exists()){
             //从myLog读取相应日志
             String inputPath = "/data/data/com.wei.rootkit/files/myLog";
+            //String inputPath = "/sdcard/myLog";
             String content = ""; //文件内容字符串
 
             File inputFile = new File(inputPath);
@@ -49,6 +50,7 @@ public class ResultService {
                                 content=content+line+"\n";
                              }
                         }
+
                         instream.close();
                     }
                 }catch (java.io.FileNotFoundException e){

@@ -45,6 +45,8 @@ public class DetailFragment extends Fragment {
         if(index == 0){//显示日志
             String content = detailService.getLogContent(packageName.trim());
 
+            //String content = "日志";
+
             textView.setMovementMethod(ScrollingMovementMethod.getInstance());
             textView.setText(content);
             textView.setVisibility(View.VISIBLE);
@@ -52,6 +54,14 @@ public class DetailFragment extends Fragment {
 
         }else{//显示图
             detailService.generatePicture(packageName.trim(), this.getContext());
+            /*
+            String content = "行为图";
+
+            textView.setMovementMethod(ScrollingMovementMethod.getInstance());
+            textView.setText(content);
+            textView.setVisibility(View.VISIBLE);
+            imageView.setVisibility(View.GONE);
+            */
 
         }
     }

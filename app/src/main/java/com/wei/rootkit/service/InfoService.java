@@ -28,12 +28,17 @@ public class InfoService {
     /*
     删除已存在的日志以及图片文件
      */
-
     private void deleteOldFiles(){
         //删除已有的myLog文件
         String logPath="/data/data/com.wei.rootkit/files/myLog";
         File f=new File(logPath);
 
+        if(f.exists()){
+            f.delete();
+        }
+
+        logPath="sdcard/myLog";
+        f=new File(logPath);
         if(f.exists()){
             f.delete();
         }
@@ -48,17 +53,12 @@ public class InfoService {
             }
         }
 
-        //删除pic目录下所有文件
-        /*
-        String picDir="/sdcard/pic";
+        //删除生成图
+        String picDir="/sdcard/out.png";
         File picFile=new File(picDir);
-        files= picFile.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                file.delete();
-            }
+        if(picFile.exists()){
+            picFile.delete();
         }
-        */
     }
 
     /*加载内核模块
@@ -81,22 +81,13 @@ public class InfoService {
             OutputStream localOutputStream = process.getOutputStream();
             DataOutputStream localDataOutputStream = new DataOutputStream(localOutputStream);
 
-            /*
-            InputStream localInputStream = process.getInputStream();
-            DataInputStream localDataInputStream = new DataInputStream(localInputStream);
-            */
-
-            //String cmd="mkdir /data/data/com.wei.rootkit/files/test\n";
             String cmd="";
 
             cmd="cd /data/data/com.wei.rootkit/files\n";
             localDataOutputStream.writeBytes(cmd);
-
-            cmd="mkdir testDir2\n";
-            localDataOutputStream.writeBytes(cmd);
             localDataOutputStream.flush();
 
-            Log.e("TAG","执行命令testDir2结束，开始执行insmod");
+            Log.e("TAG","开始执行insmod");
 
             cmd="insmod rootkit.ko\n";
             localDataOutputStream.writeBytes(cmd);
@@ -109,16 +100,6 @@ public class InfoService {
 
             process.waitFor();
 
-            /*
-            byte[] buffer = new byte[localInputStream.available()];
-            localInputStream.read(buffer);
-            localInputStream.close();
-            File of = new File("/data/data/com.wei.rootkit/files/logError");
-            of.createNewFile();
-            FileOutputStream os = new FileOutputStream(of);
-            os.write(buffer);
-            os.close();
-            */
 
         } catch (IOException e) {
             Log.e("insmod","IO异常");
@@ -163,12 +144,14 @@ public class InfoService {
             e.printStackTrace();
         }
 
+        /*
         String logPath="/data/data/com.wei.rootkit/files/myLog";
         File f=new File(logPath);
 
         if(f.exists()){
             f.delete();
         }
+        */
 
     }
 
@@ -191,6 +174,11 @@ public class InfoService {
 
             String cmd="rmmod rootkit\n";
             localDataOutputStream.writeBytes(cmd);
+            localDataOutputStream.flush();
+
+            cmd="chmod 777 /data/data/com.wei.rootkit/files/myLog\n";
+            localDataOutputStream.writeBytes(cmd);
+            localDataOutputStream.flush();
 
             localDataOutputStream.writeBytes("exit\n");
             localDataOutputStream.flush();
@@ -205,11 +193,6 @@ public class InfoService {
             e.printStackTrace();
         }
 
-    }
-
-    public void analyze(){
-
-        Log.v("TAG", "开始进行日志分析");
     }
 
 }

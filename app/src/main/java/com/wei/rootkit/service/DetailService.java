@@ -54,7 +54,7 @@ public class DetailService {
 
     private OkHttpClient okHttpClient = new OkHttpClient();
 
-    private String ip="192.168.191.1";
+    private String ip="localhost";
 
     private DetailFragment detailFragment;
 
@@ -79,8 +79,12 @@ public class DetailService {
     public String getLogContent(String packageName){
 
         String content="";
-//        String inputPath = "/data/data/com.wei.rootkit/files/log/"+packageName.trim();
-        String inputPath="/sdcard/sample.log";
+
+        //模拟器使用路径
+        String inputPath = "/data/data/com.wei.rootkit/files/log/"+packageName.trim();
+        //String inputPath = "/data/data/com.wei.rootkit/files/myLog/";
+        //真机使用路径
+        //String inputPath="/sdcard/sample.log";
 
         File inputFile = new File(inputPath);
         if(inputFile.exists()){
@@ -89,9 +93,10 @@ public class DetailService {
                 if (instream != null){
                     InputStreamReader inputreader = new InputStreamReader(instream);
                     BufferedReader buffreader = new BufferedReader(inputreader);
-                    String line;
+                    String line="";
                     //分行读取
                     int count=0;
+
                     while (( line = buffreader.readLine()) != null) {
 
                         count++;
@@ -114,6 +119,7 @@ public class DetailService {
 
                         content=content+count+".\n"+result + " ;\n\n";
                     }
+
                     instream.close();
                 }
             }catch (java.io.FileNotFoundException e){
@@ -255,9 +261,11 @@ public class DetailService {
         builder.setType(MultipartBody.FORM);
         //追加参数
         builder.addFormDataPart("PackageName",pn);
-        //String logPath="/data/data/com.wei.rootkit/files/log/"+packageName.trim();
-        //调试用
-        String logPath="/sdcard/sample.log";
+
+        //模拟器使用路径
+        String logPath="/data/data/com.wei.rootkit/files/log/"+packageName.trim();
+        //真机使用路径
+        //String logPath="/sdcard/sample.log";
         File logFile=new File(logPath);
 
         if(logFile.exists()){
@@ -287,7 +295,7 @@ public class DetailService {
                         InputStream is=response.body().byteStream();
                         //修改
                         //String picPath="/sdcard/pic/"+pn;
-                        final String picPath="/sdcard/pic/a.png";
+                        final String picPath="/sdcard/out.png";
                         File pic=new File(picPath);
                         if(pic.exists()){
                            pic.delete();
