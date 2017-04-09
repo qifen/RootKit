@@ -47,6 +47,9 @@ public class MainService {
             File picDir= new File("/data/pic");
             picDir.mkdir();
 
+            picDir= new File("/data/data/com.wei.rootkit/files/pic");
+            picDir.mkdir();
+
             //拷贝assets中的文件
             copyAssetFileToFiles(context,"rootkit.ko");
 

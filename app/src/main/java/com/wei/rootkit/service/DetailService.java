@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -217,6 +218,7 @@ public class DetailService {
             localDataOutputStream.writeBytes("exit\n");
             localDataOutputStream.flush();
 
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -228,13 +230,37 @@ public class DetailService {
         //String listPath="/sdcard/packages.list";
         File listFile=new File(listPath);
 
+        //读取packages.list的内容
+        String listContent="";
+        if(listFile.exists()){
+            try {
+                InputStream instream = new FileInputStream(listFile);
+
+                InputStreamReader inputreader = new InputStreamReader(instream);
+                BufferedReader buffreader = new BufferedReader(inputreader);
+                String line="";
+
+                while (( line = buffreader.readLine()) != null) {
+                    listContent=listContent+line+"\n";
+                }
+                instream.close();
+            } catch (FileNotFoundException e) {
+                Log.e("DetailService","GetPackagesListError");
+                e.printStackTrace();
+            } catch (IOException e) {
+                Log.e("DetailService","buffreader.readLine Error");
+                e.printStackTrace();
+            }
+        }
+
         Log.e("uploadList", "11111");
 
         Map<String, String> params = new HashMap<>();
         params.put("packagesName", fileName);
         params.put("packagesContentType", "application/octet-stream");
         OkHttpUtils.post()
-                .addFile("packages", fileName, listFile)
+//                .addFile("packages", fileName, listFile)
+                .addParams("packagesContent",listContent)
                 .url(requestUrl)
                 .build()
                 .execute(new StringCallback() {
@@ -299,7 +325,7 @@ public class DetailService {
                         InputStream is=response.body().byteStream();
                         //修改
                         //String picPath="/sdcard/pic/"+pn;
-                        final String picPath="/data/data/com.wei.rootkit/files";
+                        final String picPath="/data/data/com.wei.rootkit/files/pic/"+pn.trim();
                         File pic=new File(picPath);
                         if(pic.exists()){
                            pic.delete();
