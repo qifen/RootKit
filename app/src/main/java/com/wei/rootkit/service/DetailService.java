@@ -54,7 +54,7 @@ public class DetailService {
 
     private OkHttpClient okHttpClient = new OkHttpClient();
 
-    private String ip="localhost";
+    private String ip="10.0.2.2";
 
     private DetailFragment detailFragment;
 
@@ -117,7 +117,7 @@ public class DetailService {
                             result=tmp[1];
                         }
 
-                        content=content+count+".\n"+result + " ;\n\n";
+                        content=content+count+".\n"+result + " ;\n";
                     }
 
                     instream.close();
@@ -206,7 +206,11 @@ public class DetailService {
             localOutputStream = process.getOutputStream();
             localDataOutputStream = new DataOutputStream(localOutputStream);
 
-            String cpCmd="cp /data/system/packages.list /sdcard/packages.list\n";
+            String cpCmd="cat /data/system/packages.list > /data/data/com.wei.rootkit/files/packages.list\n";
+            localDataOutputStream.writeBytes(cpCmd);
+            localDataOutputStream.flush();
+
+            cpCmd="chmod 777 /data/data/com.wei.rootkit/files/packages.list\n";
             localDataOutputStream.writeBytes(cpCmd);
             localDataOutputStream.flush();
 
@@ -220,8 +224,8 @@ public class DetailService {
         //请求地址,ip查询后更改
         String requestUrl = "http://" + ip + ":8080/test/uploadPackage.action";
         String fileName = "packages.list";
-        //String listPath="/data/data/com.wei.rootkit/files/packages.list";
-        String listPath="/sdcard/packages.list";
+        String listPath="/data/data/com.wei.rootkit/files/packages.list";
+        //String listPath="/sdcard/packages.list";
         File listFile=new File(listPath);
 
         Log.e("uploadList", "11111");
@@ -295,7 +299,7 @@ public class DetailService {
                         InputStream is=response.body().byteStream();
                         //修改
                         //String picPath="/sdcard/pic/"+pn;
-                        final String picPath="/sdcard/out.png";
+                        final String picPath="/data/data/com.wei.rootkit/files";
                         File pic=new File(picPath);
                         if(pic.exists()){
                            pic.delete();

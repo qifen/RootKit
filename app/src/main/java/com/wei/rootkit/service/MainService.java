@@ -44,7 +44,7 @@ public class MainService {
             logDir.mkdir();
 
             //创建pic目录，生成图
-            File picDir= new File("sdcard/pic");
+            File picDir= new File("/data/pic");
             picDir.mkdir();
 
             //拷贝assets中的文件
