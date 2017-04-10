@@ -221,8 +221,11 @@ public class DetailService {
             localDataOutputStream.writeBytes("exit\n");
             localDataOutputStream.flush();
 
+            process.waitFor();
 
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
@@ -241,12 +244,13 @@ public class DetailService {
 
                 InputStreamReader inputreader = new InputStreamReader(instream);
                 BufferedReader buffreader = new BufferedReader(inputreader);
-                String line="";
+                String line;
 
                 while (( line = buffreader.readLine()) != null) {
                     listContent = listContent+line+"\n";
                 }
                 instream.close();
+                Log.e("PackagesList:",listContent);
             } catch (FileNotFoundException e) {
                 Log.e("DetailService","GetPackagesListError");
                 e.printStackTrace();
@@ -301,7 +305,11 @@ public class DetailService {
         //String logPath="/sdcard/sample.log";
         File logFile=new File(logPath);
 
-        if(logFile.exists()){
+        //final String picPath="/data/data/com.wei.rootkit/files/pic/"+pn.trim();
+        final String picPath="/sdcard/"+pn.trim();
+        final File picFile=new File(picPath);
+
+        if(logFile.exists() && (!picFile.exists())){
             RequestBody requestBody=RequestBody.create(MediaType.parse("text/*"),logFile);
             builder.addFormDataPart("LogFile",pn,requestBody);
 
@@ -328,19 +336,17 @@ public class DetailService {
                         InputStream is=response.body().byteStream();
                         //修改
                         //String picPath="/sdcard/pic/"+pn;
-                        final String picPath="/data/data/com.wei.rootkit/files/pic/"+pn.trim();
-                        File pic=new File(picPath);
-                        if(pic.exists()){
-                           pic.delete();
-                        }
-                        pic.createNewFile();
-                        FileOutputStream outputStream = new FileOutputStream(pic);
+                        picFile.createNewFile();
+                        FileOutputStream outputStream = new FileOutputStream(picFile);
 
                         while((count=is.read(buffer))!=-1){
                             outputStream.write(buffer, 0, count);
                         }
                         is.close();
                         outputStream.close();
+
+                        //将图片复制到sdcard
+
 
                         //显示图片
                         if (null != detailFragment
@@ -368,6 +374,24 @@ public class DetailService {
                 }
 
             });
+        }else if(picFile.exists()){
+            //显示图片
+            if (null != detailFragment
+                    && detailFragment.getView() != null
+                    && detailFragment.getArguments() != null
+                    && detailFragment.getArguments().getInt("index") == 1){
+                RootKitUtil.runInMainThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ImageView imageView = (ImageView) detailFragment.getView().findViewById(R.id.pinchImageView);
+                        TextView textView = (TextView) detailFragment.getView().findViewById(R.id.textView);
+                        Bitmap bm = BitmapFactory.decodeFile(picPath);
+                        imageView.setImageBitmap(bm);
+                        imageView.setVisibility(View.VISIBLE);
+                        textView.setVisibility(View.GONE);
+                    }
+                });
+            }
         }
     }
 

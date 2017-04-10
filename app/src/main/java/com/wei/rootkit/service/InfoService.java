@@ -37,12 +37,6 @@ public class InfoService {
             f.delete();
         }
 
-        logPath="sdcard/myLog";
-        f=new File(logPath);
-        if(f.exists()){
-            f.delete();
-        }
-
         //删除log目录下所有文件
         String logDir="/data/data/com.wei.rootkit/files/log";
         File logFile=new File(logDir);
@@ -53,12 +47,16 @@ public class InfoService {
             }
         }
 
-        //删除生成图
-        String picDir="/sdcard/out.png";
+        //删除pic目录下所有文件
+        String picDir="/data/data/com.wei.rootkit/files/pic";
         File picFile=new File(picDir);
-        if(picFile.exists()){
-            picFile.delete();
+        files= picFile.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                file.delete();
+            }
         }
+
     }
 
     /*加载内核模块
