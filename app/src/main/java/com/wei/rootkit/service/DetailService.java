@@ -11,6 +11,7 @@ import android.net.wifi.WifiManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.wei.rootkit.R;
@@ -18,6 +19,9 @@ import com.wei.rootkit.fragment.DetailFragment;
 import com.wei.rootkit.util.RootKitUtil;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -55,7 +59,7 @@ public class DetailService {
 
     private OkHttpClient okHttpClient = new OkHttpClient();
 
-    private String ip="10.0.2.2";
+    private String ip="192.168.0.1";
 
     private DetailFragment detailFragment;
 
@@ -366,6 +370,65 @@ public class DetailService {
 
             });
         }
+    }
+
+    /**
+     * 得到分析结果
+     */
+    public void getContent(){
+        String requestUrl="http://" + ip + ":8080/test/uploadIdentify.action";
+        OkHttpUtils
+                .get()
+                .url(requestUrl)
+                .build()
+                .execute(new StringCallback()
+                {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        Log.e("getContent", "callback----" + e.toString());
+                    }
+
+                    @Override
+                    public void onResponse(String response, int id) {
+                        try{
+                            JSONObject jsonObject = new JSONObject(response);
+                            int status = jsonObject.optInt("status");
+                            final String statusstr;
+                            final String contentstr;
+                            if (status == 1){
+                                statusstr = "恶意软件";
+                                contentstr = jsonObject.optString("content");
+                            }else {
+                                statusstr = "非恶意软件";
+                                contentstr = "无";
+                            }
+
+                            if (null != detailFragment
+                                    && detailFragment.getView() != null
+                                    && detailFragment.getArguments() != null
+                                    && detailFragment.getArguments().getInt("index") == 2){
+                                RootKitUtil.runInMainThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ImageView imageView = (ImageView) detailFragment.getView().findViewById(R.id.pinchImageView);
+                                        TextView textView = (TextView) detailFragment.getView().findViewById(R.id.textView);
+                                        LinearLayout linearLayout = (LinearLayout) detailFragment.getView().findViewById(R.id.ll_layout);
+                                        TextView status = (TextView) detailFragment.getView().findViewById(R.id.status);
+                                        TextView content = (TextView) detailFragment.getView().findViewById(R.id.content);
+
+                                        imageView.setVisibility(View.GONE);
+                                        textView.setVisibility(View.GONE);
+                                        linearLayout.setVisibility(View.VISIBLE);
+                                        status.setText(statusstr);
+                                        content.setText(contentstr);
+                                    }
+                                });
+                            }
+                        }catch (JSONException e){
+                            return;
+                        }
+                    }
+                });
     }
 
 

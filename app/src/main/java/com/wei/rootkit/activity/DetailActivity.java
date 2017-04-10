@@ -54,6 +54,7 @@ public class DetailActivity extends AppCompatActivity implements ViewPager.OnPag
         titleList = new ArrayList<>();
         titleList.add("行为日志");
         titleList.add("行为图");
+        titleList.add("辨别结果");
 
         pagerAdapter = new DetailPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(pagerAdapter);
