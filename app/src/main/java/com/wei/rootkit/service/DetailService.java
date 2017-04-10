@@ -59,7 +59,7 @@ public class DetailService {
 
     private OkHttpClient okHttpClient = new OkHttpClient();
 
-    private String ip="192.168.191.1";
+    private String ip="10.0.2.2";
 
     private DetailFragment detailFragment;
 
@@ -86,10 +86,9 @@ public class DetailService {
         String content="";
 
         //模拟器使用路径
-//        String inputPath = "/data/data/com.wei.rootkit/files/log/"+packageName.trim();
-        //String inputPath = "/data/data/com.wei.rootkit/files/myLog/";
+        String inputPath = "/data/data/com.wei.rootkit/files/log/"+packageName.trim();
         //真机使用路径
-        String inputPath="/sdcard/sample.log";
+        //String inputPath="/sdcard/sample.log";
 
         File inputFile = new File(inputPath);
         if(inputFile.exists()){
@@ -230,8 +229,8 @@ public class DetailService {
         //请求地址,ip查询后更改
         String requestUrl = "http://" + ip + ":8080/test/uploadPackage.action";
         String fileName = "packages.list";
-//        String listPath="/data/data/com.wei.rootkit/files/packages.list";
-        String listPath="/sdcard/packages.list";
+        String listPath="/data/data/com.wei.rootkit/files/packages.list";
+        //String listPath="/sdcard/packages.list";
         File listFile=new File(listPath);
 
         //读取packages.list的内容
@@ -297,9 +296,9 @@ public class DetailService {
         builder.addFormDataPart("PackageName",pn);
 
         //模拟器使用路径
-//        String logPath="/data/data/com.wei.rootkit/files/log/"+packageName.trim();
+        String logPath="/data/data/com.wei.rootkit/files/log/"+packageName.trim();
         //真机使用路径
-        String logPath="/sdcard/sample.log";
+        //String logPath="/sdcard/sample.log";
         File logFile=new File(logPath);
 
         if(logFile.exists()){
