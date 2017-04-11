@@ -305,9 +305,9 @@ public class DetailService {
         //String logPath="/sdcard/sample.log";
         File logFile=new File(logPath);
 
-        //final String picPath="/data/data/com.wei.rootkit/files/pic/"+pn.trim();
+        final String returnPath="/data/data/com.wei.rootkit/files/pic/"+pn.trim();
         final String picPath="/sdcard/"+pn.trim();
-        final File picFile=new File(picPath);
+        final File picFile=new File(returnPath);
 
         if(logFile.exists() && (!picFile.exists())){
             RequestBody requestBody=RequestBody.create(MediaType.parse("text/*"),logFile);
@@ -346,7 +346,30 @@ public class DetailService {
                         outputStream.close();
 
                         //将图片复制到sdcard
+                        Process process = null;
+                        Runtime runtime=Runtime.getRuntime();
+                        OutputStream localOutputStream=null;
+                        DataOutputStream localDataOutputStream=null;
+                        process=runtime.exec("su");
+                        localOutputStream = process.getOutputStream();
+                        localDataOutputStream = new DataOutputStream(localOutputStream);
 
+                        String cpCmd="cat /data/data/com.wei.rootkit/files/pic/"+pn.trim()+" > /sdcard/"+pn.trim()+"\n";
+                        localDataOutputStream.writeBytes(cpCmd);
+                        localDataOutputStream.flush();
+
+//                        cpCmd="chmod 777 /data/data/com.wei.rootkit/files/packages.list\n";
+//                        localDataOutputStream.writeBytes(cpCmd);
+//                        localDataOutputStream.flush();
+
+                        localDataOutputStream.writeBytes("exit\n");
+                        localDataOutputStream.flush();
+
+                        try {
+                            process.waitFor();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
 
                         //显示图片
                         if (null != detailFragment
