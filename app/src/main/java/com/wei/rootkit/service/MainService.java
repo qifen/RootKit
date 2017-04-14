@@ -44,7 +44,7 @@ public class MainService {
             logDir.mkdir();
 
             //创建pic目录，生成图
-            File picDir= new File("/data/pic");
+            File picDir= new File("/sdcard/pic");
             picDir.mkdir();
 
             picDir= new File("/data/data/com.wei.rootkit/files/pic");

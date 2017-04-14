@@ -56,6 +56,16 @@ public class InfoService {
                 file.delete();
             }
         }
+        //删除sdcard/pic目录下所有文件
+        picDir="/sdcard/pic";
+        picFile=new File(picDir);
+        files= picFile.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                file.delete();
+            }
+        }
+
 
     }
 

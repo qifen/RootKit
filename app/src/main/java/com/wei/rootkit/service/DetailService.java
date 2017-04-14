@@ -306,7 +306,7 @@ public class DetailService {
         File logFile=new File(logPath);
 
         final String returnPath="/data/data/com.wei.rootkit/files/pic/"+pn.trim();
-        final String picPath="/sdcard/"+pn.trim();
+        final String picPath="/sdcard/pic/"+pn.trim();
         final File picFile=new File(returnPath);
 
         if(logFile.exists() && (!picFile.exists())){
@@ -354,13 +354,9 @@ public class DetailService {
                         localOutputStream = process.getOutputStream();
                         localDataOutputStream = new DataOutputStream(localOutputStream);
 
-                        String cpCmd="cat /data/data/com.wei.rootkit/files/pic/"+pn.trim()+" > /sdcard/"+pn.trim()+"\n";
+                        String cpCmd="cat /data/data/com.wei.rootkit/files/pic/"+pn.trim()+" > /sdcard/pic/"+pn.trim()+"\n";
                         localDataOutputStream.writeBytes(cpCmd);
                         localDataOutputStream.flush();
-
-//                        cpCmd="chmod 777 /data/data/com.wei.rootkit/files/packages.list\n";
-//                        localDataOutputStream.writeBytes(cpCmd);
-//                        localDataOutputStream.flush();
 
                         localDataOutputStream.writeBytes("exit\n");
                         localDataOutputStream.flush();
