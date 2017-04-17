@@ -59,9 +59,11 @@ public class DetailService {
 
     private OkHttpClient okHttpClient = new OkHttpClient();
 
-    private String ip="10.0.2.2";
+    private String ip = "192.168.191.1";
 
     private DetailFragment detailFragment;
+
+    private int type = 1;   //0--模拟器,1--真机
 
     public static DetailService getInstance() {
 
@@ -85,10 +87,15 @@ public class DetailService {
 
         String content="";
 
-        //模拟器使用路径
-        String inputPath = "/data/data/com.wei.rootkit/files/log/"+packageName.trim();
-        //真机使用路径
-        //String inputPath="/sdcard/sample.log";
+        String inputPath;
+        if (type == 1){
+            //真机使用路径
+            inputPath="/sdcard/sample.log";
+        }else {
+            //模拟器使用路径
+            inputPath = "/data/data/com.wei.rootkit/files/log/"+packageName.trim();
+        }
+
 
         File inputFile = new File(inputPath);
         if(inputFile.exists()){
@@ -299,10 +306,15 @@ public class DetailService {
         //追加参数
         builder.addFormDataPart("PackageName",pn);
 
-        //模拟器使用路径
-        String logPath="/data/data/com.wei.rootkit/files/log/"+packageName.trim();
-        //真机使用路径
-        //String logPath="/sdcard/sample.log";
+        String logPath;
+        if (type == 1){
+            //真机使用路径
+            logPath = "/sdcard/sample.log";
+        }else {
+            //模拟器使用路径
+            logPath = "/data/data/com.wei.rootkit/files/log/"+packageName.trim();
+        }
+
         File logFile=new File(logPath);
 
         final String returnPath="/data/data/com.wei.rootkit/files/pic/"+pn.trim();
@@ -467,6 +479,7 @@ public class DetailService {
                                 });
                             }
                         }catch (JSONException e){
+                            Log.e("getContent", "callback----" + e.toString());
                             return;
                         }
                     }
