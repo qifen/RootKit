@@ -62,15 +62,8 @@ public class DetailFragment extends Fragment {
 
         }else if (index == 1){//显示图
             detailService.generatePicture(packageName.trim(), this.getContext());
-            /*
-            String content = "行为图";
 
-            textView.setMovementMethod(ScrollingMovementMethod.getInstance());
-            textView.setText(content);
-            textView.setVisibility(View.VISIBLE);
-            imageView.setVisibility(View.GONE);
-            */
-
+            //add
         }else if (index == 2){//显示分析结果
             detailService.getContent();
         }
