@@ -59,7 +59,7 @@ public class DetailService {
 
     private OkHttpClient okHttpClient = new OkHttpClient();
 
-    private String ip = "192.168.191.1";
+    private String ip = "172.17.214.225";
 
     private DetailFragment detailFragment;
 
@@ -423,6 +423,71 @@ public class DetailService {
                     }
                 });
             }
+        }
+    }
+
+    /**
+     * 获取辨识软件结果
+     */
+    public void getAnalysisResult(String packageName,Context context){
+        //请求地址,ip查询后更改，修改ip
+        String requestUrl = "http://" + ip + ":8080/test/uploadApk.action";
+        packageManager = context.getPackageManager();
+        PackageInfo packInfo;
+        try {
+            packInfo = packageManager.getPackageInfo(packageName.trim(),0);
+            ApplicationInfo appInfo=packInfo.applicationInfo;
+            String apkPath=appInfo.sourceDir;
+            String[] tmp = apkPath.split("/");
+            String apkName = tmp[tmp.length - 1];
+            File apkFile = new File(apkPath);
+
+            if(apkFile.exists()){
+                Map<String, String> params = new HashMap<>();
+                params.put("apkName", apkName);
+                params.put("apkContentType", "application/octet-stream");
+                OkHttpUtils.post()
+                        .addFile("apk", apkName, apkFile)
+                        .url(requestUrl)
+                        .params(params)
+                        .build()
+                        .execute(new StringCallback() {
+                            @Override
+                            public void onError(Call call, Exception e, int id) {
+                                Log.e("uploadAPK", "callback----" + e.toString());
+                            }
+
+                            @Override
+                            public void onResponse(final String response, int id) {
+                                Log.e("uploadAPK", "success");
+                                if (null != detailFragment
+                                        && detailFragment.getView() != null
+                                        && detailFragment.getArguments() != null
+                                        && detailFragment.getArguments().getInt("index") == 2){
+                                    RootKitUtil.runInMainThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            ImageView imageView = (ImageView) detailFragment.getView().findViewById(R.id.pinchImageView);
+                                            TextView textView = (TextView) detailFragment.getView().findViewById(R.id.textView);
+                                            LinearLayout linearLayout = (LinearLayout) detailFragment.getView().findViewById(R.id.ll_layout);
+                                            TextView status = (TextView) detailFragment.getView().findViewById(R.id.status);
+                                            TextView content = (TextView) detailFragment.getView().findViewById(R.id.content);
+
+                                            imageView.setVisibility(View.GONE);
+                                            textView.setVisibility(View.GONE);
+                                            linearLayout.setVisibility(View.VISIBLE);
+                                            //status.setText(statusstr);
+                                            content.setText(response);
+                                        }
+                                    });
+                                }
+                            }
+                        });
+            }
+
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e("uploadAPK", "getPackageInfo");
+            e.printStackTrace();
         }
     }
 

@@ -65,7 +65,11 @@ public class DetailFragment extends Fragment {
 
             //add
         }else if (index == 2){//显示分析结果
-            detailService.getContent();
+            detailService.getAnalysisResult(packageName.trim(),this.getContext());
+//            textView.setMovementMethod(ScrollingMovementMethod.getInstance());
+//            textView.setText("恶意软件");
+//            textView.setVisibility(View.VISIBLE);
+//            imageView.setVisibility(View.GONE);
         }
     }
 }

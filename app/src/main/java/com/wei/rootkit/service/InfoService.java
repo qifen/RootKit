@@ -80,8 +80,6 @@ public class InfoService {
 
         try {
             // 执行命令
-            Log.e("TAG","执行命令");
-
             Runtime runtime=Runtime.getRuntime();
             //获得root权限
             process=runtime.exec("su");
@@ -104,10 +102,7 @@ public class InfoService {
             localDataOutputStream.writeBytes("exit\n");
             localDataOutputStream.flush();
 
-            Log.e("TAG","执行命令完毕");
-
             process.waitFor();
-
 
         } catch (IOException e) {
             Log.e("insmod","IO异常");
