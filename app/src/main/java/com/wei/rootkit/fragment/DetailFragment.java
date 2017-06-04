@@ -3,6 +3,7 @@ package com.wei.rootkit.fragment;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +26,6 @@ public class DetailFragment extends Fragment {
     private ImageView imageView;
 
     private LinearLayout linearLayout;
-    private TextView status;
     private TextView content;
 
     @Override
@@ -39,7 +39,6 @@ public class DetailFragment extends Fragment {
         textView = (TextView) rootView.findViewById(R.id.textView);
         imageView = (ImageView) rootView.findViewById(R.id.pinchImageView);
         linearLayout = (LinearLayout) rootView.findViewById(R.id.ll_layout);
-        status = (TextView) rootView.findViewById(R.id.status);
         content = (TextView) rootView.findViewById(R.id.content);
     }
 
@@ -52,6 +51,7 @@ public class DetailFragment extends Fragment {
 
         if(index == 0){//显示日志
             String content = detailService.getLogContent(packageName.trim());
+            Log.d("hahaha", content + "yafen");
 
             //String content = "日志";
 
@@ -59,6 +59,7 @@ public class DetailFragment extends Fragment {
             textView.setText(content);
             textView.setVisibility(View.VISIBLE);
             imageView.setVisibility(View.GONE);
+            linearLayout.setVisibility(View.GONE);
 
         }else if (index == 1){//显示图
             detailService.generatePicture(packageName.trim(), this.getContext());

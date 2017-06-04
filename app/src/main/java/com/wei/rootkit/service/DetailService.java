@@ -59,7 +59,7 @@ public class DetailService {
 
     private OkHttpClient okHttpClient = new OkHttpClient();
 
-    private String ip = "172.17.214.225";
+    private String ip = "192.168.191.1";
 
     private DetailFragment detailFragment;
 
@@ -95,7 +95,6 @@ public class DetailService {
             //模拟器使用路径
             inputPath = "/data/data/com.wei.rootkit/files/log/"+packageName.trim();
         }
-
 
         File inputFile = new File(inputPath);
         if(inputFile.exists()){
@@ -239,8 +238,8 @@ public class DetailService {
         //请求地址,ip查询后更改
         String requestUrl = "http://" + ip + ":8080/test/uploadPackage.action";
         String fileName = "packages.list";
-        String listPath="/data/data/com.wei.rootkit/files/packages.list";
-        //String listPath="/sdcard/packages.list";
+//        String listPath="/data/data/com.wei.rootkit/files/packages.list";
+        String listPath="/sdcard/packages.list";
         File listFile=new File(listPath);
 
         //读取packages.list的内容
@@ -347,8 +346,8 @@ public class DetailService {
                         int count = 0;
                         InputStream is=response.body().byteStream();
                         //修改
-                        //String picPath="/sdcard/pic/"+pn;
-                        picFile.createNewFile();
+                        final String picPath="/sdcard/pic/"+pn;
+//                        picFile.createNewFile();
                         FileOutputStream outputStream = new FileOutputStream(picFile);
 
                         while((count=is.read(buffer))!=-1){
@@ -389,10 +388,13 @@ public class DetailService {
                                 public void run() {
                                     ImageView imageView = (ImageView) detailFragment.getView().findViewById(R.id.pinchImageView);
                                     TextView textView = (TextView) detailFragment.getView().findViewById(R.id.textView);
+                                    LinearLayout linearLayout = (LinearLayout) detailFragment.getView().findViewById(R.id.ll_layout);
+
                                     Bitmap bm = BitmapFactory.decodeFile(picPath);
                                     imageView.setImageBitmap(bm);
                                     imageView.setVisibility(View.VISIBLE);
                                     textView.setVisibility(View.GONE);
+                                    linearLayout.setVisibility(View.GONE);
                                 }
                             });
                         }
@@ -458,28 +460,33 @@ public class DetailService {
                             }
 
                             @Override
-                            public void onResponse(final String response, int id) {
+                            public void onResponse(String response, int id) {
                                 Log.e("uploadAPK", "success");
-                                if (null != detailFragment
-                                        && detailFragment.getView() != null
-                                        && detailFragment.getArguments() != null
-                                        && detailFragment.getArguments().getInt("index") == 2){
-                                    RootKitUtil.runInMainThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            ImageView imageView = (ImageView) detailFragment.getView().findViewById(R.id.pinchImageView);
-                                            TextView textView = (TextView) detailFragment.getView().findViewById(R.id.textView);
-                                            LinearLayout linearLayout = (LinearLayout) detailFragment.getView().findViewById(R.id.ll_layout);
-                                            TextView status = (TextView) detailFragment.getView().findViewById(R.id.status);
-                                            TextView content = (TextView) detailFragment.getView().findViewById(R.id.content);
+                                try{
+                                    JSONObject jsonObject = new JSONObject(response);
+                                    final String str = jsonObject.optString("content");
+                                    if (null != detailFragment
+                                            && detailFragment.getView() != null
+                                            && detailFragment.getArguments() != null
+                                            && detailFragment.getArguments().getInt("index") == 2){
+                                        RootKitUtil.runInMainThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                ImageView imageView = (ImageView) detailFragment.getView().findViewById(R.id.pinchImageView);
+                                                TextView textView = (TextView) detailFragment.getView().findViewById(R.id.textView);
+                                                LinearLayout linearLayout = (LinearLayout) detailFragment.getView().findViewById(R.id.ll_layout);
+                                                TextView content = (TextView) detailFragment.getView().findViewById(R.id.content);
 
-                                            imageView.setVisibility(View.GONE);
-                                            textView.setVisibility(View.GONE);
-                                            linearLayout.setVisibility(View.VISIBLE);
-                                            //status.setText(statusstr);
-                                            content.setText(response);
-                                        }
-                                    });
+                                                imageView.setVisibility(View.GONE);
+                                                textView.setVisibility(View.GONE);
+                                                linearLayout.setVisibility(View.VISIBLE);
+                                                content.setText(str);
+                                            }
+                                        });
+                                    }
+                                }catch (JSONException e){
+                                    Log.e("uploadAPK", "callback----" + e.toString());
+                                    return;
                                 }
                             }
                         });
@@ -532,13 +539,11 @@ public class DetailService {
                                         ImageView imageView = (ImageView) detailFragment.getView().findViewById(R.id.pinchImageView);
                                         TextView textView = (TextView) detailFragment.getView().findViewById(R.id.textView);
                                         LinearLayout linearLayout = (LinearLayout) detailFragment.getView().findViewById(R.id.ll_layout);
-                                        TextView status = (TextView) detailFragment.getView().findViewById(R.id.status);
                                         TextView content = (TextView) detailFragment.getView().findViewById(R.id.content);
 
                                         imageView.setVisibility(View.GONE);
                                         textView.setVisibility(View.GONE);
                                         linearLayout.setVisibility(View.VISIBLE);
-                                        status.setText(statusstr);
                                         content.setText(contentstr);
                                     }
                                 });
