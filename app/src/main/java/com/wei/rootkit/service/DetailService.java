@@ -59,7 +59,7 @@ public class DetailService {
 
     private OkHttpClient okHttpClient = new OkHttpClient();
 
-    private String ip = "192.168.191.1";
+    private String ip = "172.17.214.225";
 
     private DetailFragment detailFragment;
 
