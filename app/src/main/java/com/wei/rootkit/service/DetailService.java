@@ -480,7 +480,7 @@ public class DetailService {
                                                 imageView.setVisibility(View.GONE);
                                                 textView.setVisibility(View.GONE);
                                                 linearLayout.setVisibility(View.VISIBLE);
-                                                content.setText(str);
+                                                content.setText("非恶意软件");
                                             }
                                         });
                                     }
